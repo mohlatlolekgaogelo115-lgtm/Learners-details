@@ -56,7 +56,7 @@
     <div class="max-w-6xl mx-auto">
 
       <!-- Header -->
-      <div class="text-center mb-12">
+      <div class="text-center mb-10">
         <h1 class="text-5xl md:text-6xl font-orbitron font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent mb-3">
           Learners Dashboard
         </h1>
@@ -66,7 +66,7 @@
       </div>
 
       <!-- Stats Cards -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
         <div class="backdrop-blur-xl bg-white/70 dark:bg-black/30 border border-gray-200/60 dark:border-white/10 rounded-xl p-6 shadow-glass-light dark:shadow-glass-dark">
           <p class="text-sm text-text-muted-light dark:text-text-muted-dark mb-1">Total Students</p>
           <p id="totalStudents" class="text-4xl font-bold text-neon-cyan">—</p>
@@ -81,6 +81,23 @@
         </div>
       </div>
 
+      <!-- Search Bar -->
+      <div class="mb-8 max-w-2xl mx-auto">
+        <div class="relative">
+          <input 
+            type="search" 
+            id="searchInput"
+            placeholder="Search by name, ID, cell, student #..."
+            class="w-full px-5 py-4 pl-12 pr-5 bg-white/60 dark:bg-black/30 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 rounded-2xl text-lg text-text-light dark:text-text-dark placeholder:text-text-muted-light dark:placeholder:text-text-muted-dark focus:outline-none focus:ring-2 focus:ring-neon-cyan/50 transition-all shadow-glass-light dark:shadow-glass-dark"
+          >
+          <div class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <svg class="w-6 h-6 text-text-muted-light dark:text-text-muted-dark" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
       <!-- Students Table -->
       <div class="backdrop-blur-xl bg-white/80 dark:bg-black/40 border border-gray-200/60 dark:border-white/10 rounded-2xl shadow-glass-light dark:shadow-glass-dark overflow-hidden">
         <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700/50">
@@ -89,7 +106,7 @@
           </h2>
         </div>
         <div class="overflow-x-auto">
-          <table class="w-full text-left">
+          <table class="w-full text-left" id="studentsTable">
             <thead class="bg-gray-100/70 dark:bg-gray-900/40">
               <tr>
                 <th class="px-6 py-4 font-medium text-text-muted-light dark:text-text-muted-dark">Student #</th>
@@ -108,6 +125,10 @@
         <div id="emptyState" class="hidden py-16 text-center text-text-muted-light dark:text-text-muted-dark">
           <p class="text-xl">No students registered yet...</p>
           <p class="mt-2">The first brave learner will appear here soon ✨</p>
+        </div>
+        <div id="noResults" class="hidden py-16 text-center text-text-muted-light dark:text-text-muted-dark">
+          <p class="text-xl">No matching students found</p>
+          <p class="mt-2">Try different search terms ✦</p>
         </div>
       </div>
 
@@ -141,108 +162,157 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Make available globally for simplicity (you can also use module scope)
     window.db = db;
     window.ref = ref;
     window.onValue = onValue;
     window.remove = remove;
   </script>
 
-  <!-- Dashboard Logic -->
+  <!-- Dashboard + Search Logic -->
   <script type="module">
     const studentsRef = ref(db, 'students');
     const tableBody = document.getElementById('studentsTableBody');
     const emptyState = document.getElementById('emptyState');
+    const noResults = document.getElementById('noResults');
     const totalStudentsEl = document.getElementById('totalStudents');
     const latestStudentEl = document.getElementById('latestStudent');
     const todayCountEl = document.getElementById('todayCount');
+    const searchInput = document.getElementById('searchInput');
 
-    onValue(studentsRef, (snapshot) => {
+    let allStudents = []; // We'll store all rows here for filtering
+
+    function renderStudents(studentsToShow) {
       tableBody.innerHTML = '';
       
-      const students = snapshot.val();
-      
-      if (!students) {
-        emptyState.classList.remove('hidden');
-        totalStudentsEl.textContent = '0';
-        todayCountEl.textContent = '0';
-        latestStudentEl.textContent = '—';
+      if (studentsToShow.length === 0) {
+        if (searchInput.value.trim() !== '') {
+          noResults.classList.remove('hidden');
+          emptyState.classList.add('hidden');
+        }
         return;
       }
 
-      emptyState.classList.add('hidden');
+      noResults.classList.add('hidden');
 
-      const studentArray = Object.entries(students);
-      const count = studentArray.length;
-      totalStudentsEl.textContent = count;
+      studentsToShow.forEach(({studentNumber, data}) => {
+        const row = document.createElement('tr');
+        row.className = 'hover:bg-gray-50/70 dark:hover:bg-gray-800/30 transition-colors';
+        row.dataset.studentId = studentNumber; // useful for future features
 
-      // Today count
-      const today = new Date().toISOString().split('T')[0];
-      const todayStudents = studentArray.filter(([_, data]) => {
-        if (!data.createdAt) return false;
-        const date = new Date(data.createdAt);
-        return date.toISOString().split('T')[0] === today;
-      }).length;
-      todayCountEl.textContent = todayStudents;
+        row.innerHTML = `
+          <td class="px-6 py-4 font-medium text-neon-cyan">${studentNumber}</td>
+          <td class="px-6 py-4">${data.name || ''} ${data.surname || ''}</td>
+          <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.idNumber || '—'}</td>
+          <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.cellNumber || '—'}</td>
+          <td class="px-6 py-4 text-sm text-text-muted-light dark:text-text-muted-dark">
+            ${data.createdAt ? new Date(data.createdAt).toLocaleString('en-ZA') : '—'}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <button 
+              class="delete-btn bg-red-600/80 hover:bg-red-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+              data-student-id="${studentNumber}"
+              title="Delete this student permanently"
+            >
+              Delete
+            </button>
+          </td>
+        `;
+        tableBody.appendChild(row);
+      });
 
-      // Latest student (most recent key = latest because of push() keys)
-      const sortedByKey = [...studentArray].sort((a,b) => b[0].localeCompare(a[0]));
-      latestStudentEl.textContent = sortedByKey[0]?.[0] || '—';
-
-      // Fill table - newest first
-      studentArray
-        .sort((a,b) => b[0].localeCompare(a[0]))
-        .forEach(([studentNumber, data]) => {
-          const row = document.createElement('tr');
-          row.className = 'hover:bg-gray-50/70 dark:hover:bg-gray-800/30 transition-colors';
-          row.innerHTML = `
-            <td class="px-6 py-4 font-medium text-neon-cyan">${studentNumber}</td>
-            <td class="px-6 py-4">${data.name || ''} ${data.surname || ''}</td>
-            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.idNumber || '—'}</td>
-            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.cellNumber || '—'}</td>
-            <td class="px-6 py-4 text-sm text-text-muted-light dark:text-text-muted-dark">
-              ${data.createdAt ? new Date(data.createdAt).toLocaleString('en-ZA') : '—'}
-            </td>
-            <td class="px-6 py-4 text-center">
-              <button 
-                class="delete-btn bg-red-600/80 hover:bg-red-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                data-student-id="${studentNumber}"
-                title="Delete this student permanently"
-              >
-                Delete
-              </button>
-            </td>
-          `;
-          tableBody.appendChild(row);
-        });
-
-      // Attach delete listeners after rendering rows
+      // Re-attach delete listeners
       document.querySelectorAll('.delete-btn').forEach(btn => {
         btn.addEventListener('click', async function() {
           const studentId = this.getAttribute('data-student-id');
-          
-          if (!confirm(`Are you sure you want to delete student ${studentId}?\n\nThis action cannot be undone.`)) {
-            return;
-          }
+          if (!confirm(`Delete student ${studentId}?\nThis cannot be undone.`)) return;
 
           try {
             const studentRef = ref(db, `students/${studentId}`);
             await remove(studentRef);
-            
-            // Temporary feedback
             this.textContent = "Deleting...";
             this.disabled = true;
             this.classList.add('opacity-50', 'cursor-not-allowed');
           } catch (error) {
             console.error("Delete failed:", error);
-            alert("Failed to delete student. Check console for details.");
+            alert("Failed to delete. Check console.");
             this.textContent = "Delete";
             this.disabled = false;
             this.classList.remove('opacity-50', 'cursor-not-allowed');
           }
         });
       });
+    }
+
+    function filterStudents() {
+      const query = searchInput.value.toLowerCase().trim();
+      
+      if (!query) {
+        renderStudents(allStudents);
+        noResults.classList.add('hidden');
+        return;
+      }
+
+      const filtered = allStudents.filter(({studentNumber, data}) => {
+        const fullName = `${data.name || ''} ${data.surname || ''}`.toLowerCase();
+        const searchText = [
+          studentNumber.toLowerCase(),
+          fullName,
+          (data.idNumber || '').toLowerCase(),
+          (data.cellNumber || '').toLowerCase()
+        ].join(' ');
+        
+        return searchText.includes(query);
+      });
+
+      renderStudents(filtered);
+    }
+
+    onValue(studentsRef, (snapshot) => {
+      const students = snapshot.val();
+      
+      if (!students) {
+        emptyState.classList.remove('hidden');
+        noResults.classList.add('hidden');
+        totalStudentsEl.textContent = '0';
+        todayCountEl.textContent = '0';
+        latestStudentEl.textContent = '—';
+        allStudents = [];
+        tableBody.innerHTML = '';
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      allStudents = Object.entries(students).map(([studentNumber, data]) => ({
+        studentNumber,
+        data
+      }));
+
+      const count = allStudents.length;
+      totalStudentsEl.textContent = count;
+
+      // Today count
+      const today = new Date().toISOString().split('T')[0];
+      const todayStudents = allStudents.filter(({data}) => {
+        if (!data.createdAt) return false;
+        return new Date(data.createdAt).toISOString().split('T')[0] === today;
+      }).length;
+      todayCountEl.textContent = todayStudents;
+
+      // Latest
+      const sorted = [...allStudents].sort((a,b) => b.studentNumber.localeCompare(a.studentNumber));
+      latestStudentEl.textContent = sorted[0]?.studentNumber || '—';
+
+      // Initial render (newest first)
+      allStudents.sort((a,b) => b.studentNumber.localeCompare(a.studentNumber));
+      renderStudents(allStudents);
+
+      // Apply current search filter if any
+      filterStudents();
     });
+
+    // Live search
+    searchInput.addEventListener('input', filterStudents);
   </script>
 
   <style>
