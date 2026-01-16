@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Student"Co" • Learners Dashboard</title>
-
+  
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
+  
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -42,29 +42,6 @@
         }
       }
     }
-  </script>
-
-  <!-- Firebase -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
-
-    const firebaseConfig = {
-      apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
-      authDomain: "student-co-45e92.firebaseapp.com",
-      projectId: "student-co-45e92",
-      storageBucket: "student-co-45e92.firebasestorage.app",
-      messagingSenderId: "55508513562",
-      appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
-      measurementId: "G-1VVHXLGPF6",
-      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com/"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-    window.db = db;
-    window.ref = ref;
-    window.onValue = onValue;
   </script>
 </head>
 <body class="min-h-screen font-sans antialiased bg-ambient-light dark:bg-ambient-dark text-text-light dark:text-text-dark transition-colors duration-300">
@@ -111,7 +88,6 @@
             Registered Learners
           </h2>
         </div>
-
         <div class="overflow-x-auto">
           <table class="w-full text-left">
             <thead class="bg-gray-100/70 dark:bg-gray-900/40">
@@ -121,6 +97,7 @@
                 <th class="px-6 py-4 font-medium text-text-muted-light dark:text-text-muted-dark">ID / Passport</th>
                 <th class="px-6 py-4 font-medium text-text-muted-light dark:text-text-muted-dark">Cell Number</th>
                 <th class="px-6 py-4 font-medium text-text-muted-light dark:text-text-muted-dark">Registered</th>
+                <th class="px-6 py-4 font-medium text-text-muted-light dark:text-text-muted-dark text-center">Action</th>
               </tr>
             </thead>
             <tbody id="studentsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800/60">
@@ -128,7 +105,6 @@
             </tbody>
           </table>
         </div>
-
         <div id="emptyState" class="hidden py-16 text-center text-text-muted-light dark:text-text-muted-dark">
           <p class="text-xl">No students registered yet...</p>
           <p class="mt-2">The first brave learner will appear here soon ✨</p>
@@ -141,6 +117,38 @@
     </div>
   </div>
 
+  <!-- Firebase SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { 
+      getDatabase, 
+      ref, 
+      onValue,
+      remove 
+    } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
+      authDomain: "student-co-45e92.firebaseapp.com",
+      projectId: "student-co-45e92",
+      storageBucket: "student-co-45e92.firebasestorage.app",
+      messagingSenderId: "55508513562",
+      appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
+      measurementId: "G-1VVHXLGPF6",
+      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com/"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    // Make available globally for simplicity (you can also use module scope)
+    window.db = db;
+    window.ref = ref;
+    window.onValue = onValue;
+    window.remove = remove;
+  </script>
+
+  <!-- Dashboard Logic -->
   <script type="module">
     const studentsRef = ref(db, 'students');
     const tableBody = document.getElementById('studentsTableBody');
@@ -151,6 +159,7 @@
 
     onValue(studentsRef, (snapshot) => {
       tableBody.innerHTML = '';
+      
       const students = snapshot.val();
       
       if (!students) {
@@ -162,6 +171,7 @@
       }
 
       emptyState.classList.add('hidden');
+
       const studentArray = Object.entries(students);
       const count = studentArray.length;
       totalStudentsEl.textContent = count;
@@ -175,27 +185,63 @@
       }).length;
       todayCountEl.textContent = todayStudents;
 
-      // Latest student (most recent key = latest because of timestamp format)
-      const sortedByKey = studentArray.sort((a,b) => b[0].localeCompare(a[0]));
-      latestStudentEl.textContent = sortedByKey[0][0];
+      // Latest student (most recent key = latest because of push() keys)
+      const sortedByKey = [...studentArray].sort((a,b) => b[0].localeCompare(a[0]));
+      latestStudentEl.textContent = sortedByKey[0]?.[0] || '—';
 
-      // Fill table
+      // Fill table - newest first
       studentArray
-        .sort((a,b) => b[0].localeCompare(a[0])) // newest first
+        .sort((a,b) => b[0].localeCompare(a[0]))
         .forEach(([studentNumber, data]) => {
           const row = document.createElement('tr');
           row.className = 'hover:bg-gray-50/70 dark:hover:bg-gray-800/30 transition-colors';
           row.innerHTML = `
             <td class="px-6 py-4 font-medium text-neon-cyan">${studentNumber}</td>
-            <td class="px-6 py-4">${data.name} ${data.surname}</td>
-            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.idNumber}</td>
-            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.cellNumber}</td>
+            <td class="px-6 py-4">${data.name || ''} ${data.surname || ''}</td>
+            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.idNumber || '—'}</td>
+            <td class="px-6 py-4 text-text-muted-light dark:text-text-muted-dark">${data.cellNumber || '—'}</td>
             <td class="px-6 py-4 text-sm text-text-muted-light dark:text-text-muted-dark">
               ${data.createdAt ? new Date(data.createdAt).toLocaleString('en-ZA') : '—'}
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button 
+                class="delete-btn bg-red-600/80 hover:bg-red-700 text-white text-sm font-medium px-4 py-1.5 rounded-lg transition-all transform hover:scale-105 active:scale-95 shadow-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
+                data-student-id="${studentNumber}"
+                title="Delete this student permanently"
+              >
+                Delete
+              </button>
             </td>
           `;
           tableBody.appendChild(row);
         });
+
+      // Attach delete listeners after rendering rows
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async function() {
+          const studentId = this.getAttribute('data-student-id');
+          
+          if (!confirm(`Are you sure you want to delete student ${studentId}?\n\nThis action cannot be undone.`)) {
+            return;
+          }
+
+          try {
+            const studentRef = ref(db, `students/${studentId}`);
+            await remove(studentRef);
+            
+            // Temporary feedback
+            this.textContent = "Deleting...";
+            this.disabled = true;
+            this.classList.add('opacity-50', 'cursor-not-allowed');
+          } catch (error) {
+            console.error("Delete failed:", error);
+            alert("Failed to delete student. Check console for details.");
+            this.textContent = "Delete";
+            this.disabled = false;
+            this.classList.remove('opacity-50', 'cursor-not-allowed');
+          }
+        });
+      });
     });
   </script>
 
