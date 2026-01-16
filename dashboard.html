@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learners Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #007bff;
+            color: white;
+        }
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+        #loading {
+            text-align: center;
+            margin-top: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        #error {
+            text-align: center;
+            margin-top: 20px;
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>Registered Learners Dashboard</h1>
+    <div id="loading">Loading learners data...</div>
+    <div id="error" style="display: none;"></div>
+    <table id="learnersTable" style="display: none;">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Age</th>
+                <th>Registration Date</th>
+                <!-- Add more headers based on your learner data structure -->
+            </tr>
+        </thead>
+        <tbody id="learnersBody"></tbody>
+    </table>
+
+    <script type="module">
+        // Import Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // Your Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
+            authDomain: "student-co-45e92.firebaseapp.com",
+            projectId: "student-co-45e92",
+            storageBucket: "student-co-45e92.firebasestorage.app",
+            messagingSenderId: "55508513562",
+            appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
+            measurementId: "G-1VVHXLGPF6"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // Function to fetch and display learners
+        async function loadLearners() {
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
+            const table = document.getElementById('learnersTable');
+            const tbody = document.getElementById('learnersBody');
+
+            try {
+                // Assuming learners are stored in a Firestore collection named 'learners'
+                // Adjust the collection name if it's different (e.g., 'students' or 'users')
+                const querySnapshot = await getDocs(collection(db, 'learners'));
+                
+                if (querySnapshot.empty) {
+                    errorDiv.textContent = 'No learners found.';
+                    errorDiv.style.display = 'block';
+                    return;
+                }
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const row = document.createElement('tr');
+                    
+                    // Adjust these based on your actual data fields
+                    // Example fields: id (doc.id), name, email, age, registrationDate
+                    row.innerHTML = `
+                        <td>${doc.id}</td>
+                        <td>${data.name || 'N/A'}</td>
+                        <td>${data.email || 'N/A'}</td>
+                        <td>${data.age || 'N/A'}</td>
+                        <td>${data.registrationDate ? new Date(data.registrationDate.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
+                    `;
+                    tbody.appendChild(row);
+                });
+
+                table.style.display = 'table';
+            } catch (error) {
+                console.error('Error fetching learners:', error);
+                errorDiv.textContent = 'Failed to load learners data. Check console for details.';
+                errorDiv.style.display = 'block';
+            } finally {
+                loading.style.display = 'none';
+            }
+        }
+
+        // Load data on page load
+        loadLearners();
+    </script>
+</body>
+</html>
