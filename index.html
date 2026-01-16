@@ -1,290 +1,224 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Student"Co" • Learners Dashboard</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            orbitron: ['Orbitron', 'sans-serif'],
-            sans: ['Inter', 'system-ui', 'sans-serif'],
-          },
-          colors: {
-            'ambient-light': '#f8f9fc',
-            'ambient-dark': '#0a0e1a',
-            'text-light': '#1e293b',
-            'text-dark': '#e2e8f0',
-            'neon-cyan': '#00d4ff',
-            'neon-purple': '#a855f7',
-            'glow-cyan': 'rgba(0, 212, 255, 0.18)',
-            'glow-purple': 'rgba(168, 85, 247, 0.15)',
-          },
-          boxShadow: {
-            'glow-sm': '0 0 12px 2px var(--tw-shadow-color)',
-            'glass-light': '0 10px 30px -10px rgba(0,0,0,0.1)',
-            'glass-dark': '0 10px 30px -10px rgba(0,0,0,0.6)',
-          }
-        }
-      }
+  <title>Learners Management</title>
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 20px;
+      background: #f9f9f9;
     }
-  </script>
+
+    h1 {
+      color: #2c3e50;
+      text-align: center;
+    }
+
+    .form-container {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: bold;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    button {
+      padding: 10px 20px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 1rem;
+    }
+
+    button:hover {
+      background: #219653;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    th, td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background: #34495e;
+      color: white;
+    }
+
+    tr:hover {
+      background: #f8f9fa;
+    }
+
+    .delete-btn {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 8px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+
+    .delete-btn:hover {
+      background: #c0392b;
+    }
+
+    .actions {
+      text-align: center;
+    }
+
+    .empty-message {
+      text-align: center;
+      color: #777;
+      padding: 40px;
+      font-style: italic;
+    }
+  </style>
 </head>
-<body class="min-h-screen font-sans antialiased bg-ambient-light dark:bg-ambient-dark text-text-light dark:text-text-dark transition-colors duration-300">
+<body>
 
-  <div class="fixed inset-0 pointer-events-none overflow-hidden">
-    <div class="absolute -top-1/3 -left-1/4 w-3/4 h-3/4 bg-glow-cyan rounded-full blur-3xl opacity-20 dark:opacity-30 animate-pulse"></div>
-    <div class="absolute -bottom-1/3 -right-1/4 w-3/4 h-3/4 bg-glow-purple rounded-full blur-3xl opacity-15 dark:opacity-25 animate-pulse delay-1000"></div>
-  </div>
+  <h1>Learners Management</h1>
 
-  <div class="relative min-h-screen px-4 py-12">
-    <div class="max-w-6xl mx-auto">
-
-      <div class="text-center mb-12">
-        <h1 class="text-5xl md:text-6xl font-orbitron font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent mb-4">
-          Learners Dashboard
-        </h1>
-        <p class="text-lg text-slate-500 dark:text-slate-400 mb-8">
-          Real-time overview • Student"Co"
-        </p>
-
-        <div class="flex flex-col items-center gap-6">
-          <button id="googleSignInBtn"
-            class="flex items-center gap-3 bg-white hover:bg-gray-100 text-gray-800 font-medium py-3.5 px-8 rounded-full shadow-lg transition-all hover:shadow-xl hover:scale-105 active:scale-95">
-            <svg class="w-6 h-6" viewBox="0 0 24 24">
-              <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z" fill="#4285F4"/>
-              <path d="M12 23c2.97 0 5.46-1.01 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.77 20.39 6.62 23 12 23z" fill="#34A853"/>
-              <path d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z" fill="#FBBC05"/>
-              <path d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.62 0 2.77 2.61 0.96 6.34l4.55 2.45C6.42 6.02 8.98 4.98 12 4.98z" fill="#EA4335"/>
-            </svg>
-            Sign in with Google
-          </button>
-
-          <div id="userInfo" class="hidden flex items-center gap-5 bg-white/10 backdrop-blur-md px-6 py-3 rounded-full border border-white/10">
-            <img id="userPhoto" class="w-10 h-10 rounded-full border-2 border-neon-cyan/40" alt="User" referrerpolicy="no-referrer">
-            <span id="userName" class="font-medium text-lg"></span>
-            <button id="signOutBtn" class="text-red-400 hover:text-red-300 font-medium transition-colors">
-              Sign Out
-            </button>
-          </div>
-        </div>
+  <div class="form-container">
+    <form id="learnerForm">
+      <div class="form-group">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required placeholder="Enter full name"/>
       </div>
 
-      <div id="dashboardContent" class="hidden space-y-10">
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div class="backdrop-blur-xl bg-white/70 dark:bg-black/30 border border-gray-200/60 dark:border-white/10 rounded-xl p-6 shadow-glass-light dark:shadow-glass-dark">
-            <p class="text-sm text-slate-500 mb-1">Total Students</p>
-            <p id="totalStudents" class="text-5xl font-bold text-neon-cyan">—</p>
-          </div>
-          <div class="backdrop-blur-xl bg-white/70 dark:bg-black/30 border border-gray-200/60 dark:border-white/10 rounded-xl p-6 shadow-glass-light dark:shadow-glass-dark">
-            <p class="text-sm text-slate-500 mb-1">Latest Registration</p>
-            <p id="latestStudent" class="text-2xl font-medium text-neon-purple truncate">—</p>
-          </div>
-          <div class="backdrop-blur-xl bg-white/70 dark:bg-black/30 border border-gray-200/60 dark:border-white/10 rounded-xl p-6 shadow-glass-light dark:shadow-glass-dark">
-            <p class="text-sm text-slate-500 mb-1">Today</p>
-            <p id="todayCount" class="text-5xl font-bold text-neon-cyan">—</p>
-          </div>
-        </div>
-
-        <div class="max-w-2xl mx-auto">
-          <div class="relative">
-            <input id="searchInput" type="search"
-              placeholder="Search students..."
-              class="w-full px-5 py-4 pl-14 bg-white/60 dark:bg-black/30 backdrop-blur-xl border border-gray-200/60 dark:border-white/10 rounded-2xl text-lg focus:outline-none focus:ring-2 focus:ring-neon-cyan/60 transition-all">
-            <svg class="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-          </div>
-        </div>
-
-        <div class="backdrop-blur-xl bg-white/80 dark:bg-black/40 border border-gray-200/60 dark:border-white/10 rounded-2xl shadow-glass-light dark:shadow-glass-dark overflow-hidden">
-          <div class="px-6 py-5 border-b border-gray-200 dark:border-gray-700/50">
-            <h2 class="text-2xl font-orbitron font-semibold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
-              Registered Learners
-            </h2>
-          </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left">
-              <thead class="bg-gray-100/70 dark:bg-gray-900/40">
-                <tr>
-                  <th class="px-6 py-4 font-medium text-slate-500">Student #</th>
-                  <th class="px-6 py-4 font-medium text-slate-500">Full Name</th>
-                  <th class="px-6 py-4 font-medium text-slate-500">ID / Passport</th>
-                  <th class="px-6 py-4 font-medium text-slate-500">Cell</th>
-                  <th class="px-6 py-4 font-medium text-slate-500">Registered</th>
-                  <th class="px-6 py-4 text-center font-medium text-slate-500">Action</th>
-                </tr>
-              </thead>
-              <tbody id="studentsTableBody" class="divide-y divide-gray-200 dark:divide-gray-800/60"></tbody>
-            </table>
-          </div>
-          <div id="emptyState" class="hidden py-20 text-center text-slate-500">
-            <p class="text-2xl">No students registered yet...</p>
-          </div>
-          <div id="noResults" class="hidden py-20 text-center text-slate-500">
-            <p class="text-2xl">No matching students found</p>
-          </div>
-        </div>
+      <div class="form-group">
+        <label for="idNumber">ID Number / Student Number</label>
+        <input type="text" id="idNumber" required placeholder="e.g. 200101010101"/>
       </div>
-    </div>
+
+      <div class="form-group">
+        <label for="grade">Grade / Class</label>
+        <select id="grade" required>
+          <option value="">Select grade</option>
+          <option value="8">Grade 8</option>
+          <option value="9">Grade 9</option>
+          <option value="10">Grade 10</option>
+          <option value="11">Grade 11</option>
+          <option value="12">Grade 12</option>
+        </select>
+      </div>
+
+      <button type="submit">Add Learner</button>
+    </form>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, onValue, remove } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  <table id="learnersTable">
+    <thead>
+      <tr>
+        <th>Name</th>
+        <th>ID Number</th>
+        <th>Grade</th>
+        <th class="actions">Actions</th>
+      </tr>
+    </thead>
+    <tbody id="learnersBody">
+      <!-- Learners will be added here -->
+    </tbody>
+  </table>
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
-      authDomain: "student-co-45e92.firebaseapp.com",
-      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com",
-      projectId: "student-co-45e92",
-      storageBucket: "student-co-45e92.firebasestorage.app",
-      messagingSenderId: "55508513562",
-      appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
-      measurementId: "G-1VVHXLGPF6"
-    };
+  <script>
+    // Get elements
+    const form = document.getElementById('learnerForm');
+    const tbody = document.getElementById('learnersBody');
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const googleProvider = new GoogleAuthProvider();
+    // Load learners from localStorage
+    let learners = JSON.parse(localStorage.getItem('learners')) || [];
 
-    // Configuration
-    const AUTHORIZED_PASSWORD = "STU2026"; // <--- CHANGE YOUR PASSWORD HERE
-
-    // Elements
-    const googleSignInBtn = document.getElementById('googleSignInBtn');
-    const signOutBtn = document.getElementById('signOutBtn');
-    const userInfo = document.getElementById('userInfo');
-    const userPhoto = document.getElementById('userPhoto');
-    const userName = document.getElementById('userName');
-    const dashboardContent = document.getElementById('dashboardContent');
-
-    // Auth state listener
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        googleSignInBtn.classList.add('hidden');
-        userInfo.classList.remove('hidden');
-        dashboardContent.classList.remove('hidden');
-        userPhoto.src = user.photoURL || '';
-        userName.textContent = user.displayName || 'User';
-        startListeningToStudents();
-      } else {
-        googleSignInBtn.classList.remove('hidden');
-        userInfo.classList.add('hidden');
-        dashboardContent.classList.add('hidden');
-        document.getElementById('studentsTableBody').innerHTML = '';
-      }
-    });
-
-    googleSignInBtn.onclick = async () => {
-      try { await signInWithPopup(auth, googleProvider); } 
-      catch (error) { alert("Sign-in failed: " + error.message); }
-    };
-
-    signOutBtn.onclick = async () => {
-      try { await signOut(auth); } catch (error) { console.error(error); }
-    };
-
-    let allStudents = [];
-
-    function startListeningToStudents() {
-      onValue(ref(db, 'students'), (snapshot) => {
-        const data = snapshot.val();
-        if (!data) {
-          updateStats(0, 0, '—');
-          document.getElementById('emptyState').classList.remove('hidden');
-          allStudents = [];
-          renderStudents([]);
-          return;
-        }
-        document.getElementById('emptyState').classList.add('hidden');
-        allStudents = Object.entries(data).map(([key, value]) => ({ key, ...value }))
-                        .sort((a,b) => b.key.localeCompare(a.key));
-        
-        const today = new Date().toISOString().split('T')[0];
-        const todayCount = allStudents.filter(s => s.createdAt && s.createdAt.startsWith(today)).length;
-        updateStats(allStudents.length, todayCount, allStudents[0]?.key);
-        renderStudents(allStudents);
-      });
-    }
-
-    function updateStats(total, today, latest) {
-      document.getElementById('totalStudents').textContent = total;
-      document.getElementById('todayCount').textContent = today;
-      document.getElementById('latestStudent').textContent = latest || '—';
-    }
-
-    function renderStudents(students) {
-      const tbody = document.getElementById('studentsTableBody');
+    // Render all learners
+    function renderLearners() {
       tbody.innerHTML = '';
-      if (students.length === 0 && allStudents.length > 0) {
-        document.getElementById('noResults').classList.remove('hidden');
+
+      if (learners.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="empty-message">No learners added yet...</td></tr>';
         return;
       }
-      document.getElementById('noResults').classList.add('hidden');
 
-      students.forEach(student => {
-        const tr = document.createElement('tr');
-        tr.className = 'hover:bg-gray-50/70 dark:hover:bg-gray-900/30 transition-colors';
-        tr.innerHTML = `
-          <td class="px-6 py-4 font-medium text-neon-cyan">${student.key}</td>
-          <td class="px-6 py-4">${student.name || ''} ${student.surname || ''}</td>
-          <td class="px-6 py-4 text-slate-500">${student.idNumber || '—'}</td>
-          <td class="px-6 py-4 text-slate-500">${student.cellNumber || '—'}</td>
-          <td class="px-6 py-4 text-sm text-slate-500">${student.createdAt ? new Date(student.createdAt).toLocaleString() : '—'}</td>
-          <td class="px-6 py-4 text-center">
-            <button class="delete-btn px-4 py-1.5 bg-red-600/80 hover:bg-red-700 text-white rounded-lg transition-all text-sm font-medium"
-              data-id="${student.key}">Delete</button>
+      learners.forEach((learner, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${learner.name}</td>
+          <td>${learner.idNumber}</td>
+          <td>${learner.grade}</td>
+          <td class="actions">
+            <button 
+              class="delete-btn" 
+              onclick="deleteLearner(${index})"
+            >Delete</button>
           </td>
         `;
-        tbody.appendChild(tr);
-      });
-
-      // Attach Delete Events
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.onclick = async () => {
-          const studentId = btn.dataset.id;
-          
-          // 1. Confirm Deletion
-          if (!confirm(`Are you sure you want to delete Student ${studentId}?`)) return;
-
-          // 2. Password Prompt
-          const pw = prompt("Management Authorization Required.\nEnter Password to delete:");
-          
-          if (pw === AUTHORIZED_PASSWORD) {
-            try {
-              await remove(ref(db, `students/${studentId}`));
-              alert("Student deleted successfully.");
-            } catch (err) {
-              alert("Error: " + err.message);
-            }
-          } else if (pw !== null) {
-            alert("Access Denied: Incorrect Management Password.");
-          }
-        };
+        tbody.appendChild(row);
       });
     }
 
-    // Search logic
-    document.getElementById('searchInput').addEventListener('input', e => {
-      const term = e.target.value.toLowerCase().trim();
-      const filtered = allStudents.filter(s => 
-        Object.values(s).some(val => String(val).toLowerCase().includes(term))
-      );
-      renderStudents(filtered);
+    // Delete learner
+    function deleteLearner(index) {
+      if (confirm('Are you sure you want to delete this learner?')) {
+        learners.splice(index, 1);
+        localStorage.setItem('learners', JSON.stringify(learners));
+        renderLearners();
+      }
+    }
+
+    // Add new learner
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const name = document.getElementById('name').value.trim();
+      const idNumber = document.getElementById('idNumber').value.trim();
+      const grade = document.getElementById('grade').value;
+
+      if (!name || !idNumber || !grade) {
+        alert('Please fill in all fields!');
+        return;
+      }
+
+      learners.push({ name, idNumber, grade });
+      localStorage.setItem('learners', JSON.stringify(learners));
+
+      form.reset();
+      renderLearners();
     });
+
+    // Initial render
+    renderLearners();
   </script>
 </body>
 </html>
