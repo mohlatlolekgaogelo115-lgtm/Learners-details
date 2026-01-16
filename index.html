@@ -1,77 +1,51 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Learners Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Student Nexus • Learner Dashboard (Realtime DB)</title>
+ 
+  <!-- Google Fonts - Futuristic + clean -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+ 
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            orbitron: ['Orbitron', 'sans-serif'],
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+          colors: {
+            'ambient-dark': '#0a0e1a',
+            'ambient-darker': '#05070f',
+            'neon-cyan': '#00f0ff',
+            'neon-purple': '#c084fc',
+            'glow-cyan': 'rgba(0, 240, 255, 0.15)',
+            'glow-purple': 'rgba(192, 132, 252, 0.12)',
+          },
+          boxShadow: {
+            'glow-sm': '0 0 12px 2px var(--tw-shadow-color)',
+            'glow-md': '0 0 25px 6px var(--tw-shadow-color)',
+          },
+          backgroundImage: {
+            'ambient-gradient': 'linear-gradient(135deg, #0a0e1a 0%, #120d1f 50%, #0a0e1a 100%)',
+          },
         }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-            background-color: white;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #007bff;
-            color: white;
-        }
-        tr:hover {
-            background-color: #f1f1f1;
-        }
-        #loading {
-            text-align: center;
-            margin-top: 20px;
-            font-style: italic;
-            color: #666;
-        }
-        #error {
-            text-align: center;
-            margin-top: 20px;
-            color: red;
-        }
-    </style>
-</head>
-<body>
-    <h1>Registered Learners Dashboard</h1>
-    <div id="loading">Loading learners data...</div>
-    <div id="error" style="display: none;"></div>
-    <table id="learnersTable" style="display: none;">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Age</th>
-                <th>Registration Date</th>
-                <!-- Add more headers based on your learner data structure -->
-            </tr>
-        </thead>
-        <tbody id="learnersBody"></tbody>
-    </table>
-
-    <script type="module">
-        // Import Firebase SDK
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-
-        // Your Firebase configuration
-
-const firebaseConfig = {
+      }
+    }
+  </script>
+  <!-- Firebase SDKs (Realtime Database modular) -->
+  <script type="module">
+    // Import Firebase modules
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+    const firebaseConfig = {
       apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
       authDomain: "student-co-45e92.firebaseapp.com",
       projectId: "student-co-45e92",
@@ -79,73 +53,141 @@ const firebaseConfig = {
       messagingSenderId: "55508513562",
       appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
       measurementId: "G-1VVHXLGPF6",
-      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com/"  // ← Add this! (see setup notes)
+      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com/"
     };
-        
-        // Initialize Firebase
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-
-        // Function to load and display learners (with realtime updates)
-        function loadLearners() {
-            const loading = document.getElementById('loading');
-            const errorDiv = document.getElementById('error');
-            const table = document.getElementById('learnersTable');
-            const tbody = document.getElementById('learnersBody');
-
-            // Assuming learners are stored under a node named '/learners' in Realtime Database
-            // Adjust the path if it's different (e.g., '/students' or '/users')
-            const learnersRef = ref(db, 'learners');
-
-            onValue(learnersRef, (snapshot) => {
-                tbody.innerHTML = ''; // Clear existing rows for updates
-                
-                const data = snapshot.val();
-                
-                if (!data) {
-                    errorDiv.textContent = 'No learners found.';
-                    errorDiv.style.display = 'block';
-                    table.style.display = 'none';
-                    loading.style.display = 'none';
-                    return;
-                }
-
-                try {
-                    Object.entries(data).forEach(([id, learner]) => {
-                        const row = document.createElement('tr');
-                        
-                        // Adjust these based on your actual data fields
-                        // Example fields: name, email, age, registrationDate (assuming timestamp or ISO string)
-                        row.innerHTML = `
-                            <td>${id}</td>
-                            <td>${learner.name || 'N/A'}</td>
-                            <td>${learner.email || 'N/A'}</td>
-                            <td>${learner.age || 'N/A'}</td>
-                            <td>${learner.registrationDate ? new Date(learner.registrationDate).toLocaleDateString() : 'N/A'}</td>
-                        `;
-                        tbody.appendChild(row);
-                    });
-
-                    table.style.display = 'table';
-                    errorDiv.style.display = 'none';
-                } catch (error) {
-                    console.error('Error processing learners data:', error);
-                    errorDiv.textContent = 'Failed to process learners data. Check console for details.';
-                    errorDiv.style.display = 'block';
-                    table.style.display = 'none';
-                } finally {
-                    loading.style.display = 'none';
-                }
-            }, (error) => {
-                console.error('Error fetching learners:', error);
-                errorDiv.textContent = 'Failed to load learners data. Check console for details.';
-                errorDiv.style.display = 'block';
-                loading.style.display = 'none';
-            });
-        }
-
-        // Load data on page load
-        loadLearners();
-    </script>
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    window.db = db;
+    window.ref = ref;
+    window.onValue = onValue;
+  </script>
+</head>
+<body class="bg-ambient-dark text-gray-100 min-h-screen font-sans antialiased">
+  <!-- Background ambient effect -->
+  <div class="fixed inset-0 pointer-events-none overflow-hidden">
+    <div class="absolute -top-1/3 -left-1/3 w-2/3 h-2/3 bg-glow-cyan rounded-full blur-3xl opacity-30 animate-pulse-slow"></div>
+    <div class="absolute -bottom-1/4 -right-1/4 w-3/4 h-3/4 bg-glow-purple rounded-full blur-3xl opacity-20 animate-pulse-slow delay-1000"></div>
+  </div>
+  <div class="relative min-h-screen flex items-center justify-center px-4 py-12">
+    <div class="w-full max-w-4xl">
+      <!-- Glassmorphism card -->
+      <div class="backdrop-blur-xl bg-black/30 border border-white/10 rounded-2xl shadow-2xl shadow-glow-cyan/20 overflow-hidden">
+        <div class="px-8 py-10">
+          <h1 class="text-4xl font-orbitron font-bold text-center mb-2 tracking-wider bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent">
+            Student"Co Dashboard
+          </h1>
+          <p class="text-center text-gray-400 mb-10 text-sm">Real-time learner registry • Powered by Firebase Realtime DB</p>
+          
+          <!-- Search Input -->
+          <div class="mb-8">
+            <input
+              type="text"
+              id="searchInput"
+              class="w-full px-4 py-3 bg-black/40 border border-neon-cyan/30 rounded-lg focus:outline-none focus:border-neon-cyan focus:shadow-glow-sm focus:shadow-glow-cyan transition-all duration-300 text-white placeholder-gray-500"
+              placeholder="Search by name, surname, or student ID..."
+            />
+          </div>
+          
+          <!-- Learner List -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-white/10">
+                  <th class="py-3 px-4 text-sm font-medium text-gray-300">Student ID</th>
+                  <th class="py-3 px-4 text-sm font-medium text-gray-300">First Name</th>
+                  <th class="py-3 px-4 text-sm font-medium text-gray-300">Surname</th>
+                  <th class="py-3 px-4 text-sm font-medium text-gray-300">Registered On</th>
+                </tr>
+              </thead>
+              <tbody id="learnerTableBody" class="divide-y divide-white/10">
+                <!-- Learners will be populated here -->
+              </tbody>
+            </table>
+          </div>
+          <p id="noResults" class="mt-6 text-center text-sm text-gray-400 hidden">No learners found matching your search.</p>
+        </div>
+      </div>
+      <p class="text-center text-gray-500 text-xs mt-8">Student Co © 2026 • Realtime Database Edition</p>
+    </div>
+  </div>
+  <!-- Dashboard logic with Realtime Database -->
+  <script type="module">
+    const learnerTableBody = document.getElementById('learnerTableBody');
+    const searchInput = document.getElementById('searchInput');
+    const noResults = document.getElementById('noResults');
+    
+    let allLearners = []; // Store all learners for searching
+    
+    // Realtime listener for students
+    const studentsRef = ref(db, 'students');
+    onValue(studentsRef, (snapshot) => {
+      allLearners = [];
+      learnerTableBody.innerHTML = '';
+      if (snapshot.exists()) {
+        snapshot.forEach((childSnapshot) => {
+          const learner = childSnapshot.val();
+          allLearners.push(learner);
+        });
+        renderLearners(allLearners);
+      } else {
+        showNoResults(true);
+      }
+    });
+    
+    // Render learners to table
+    function renderLearners(learners) {
+      learnerTableBody.innerHTML = '';
+      if (learners.length === 0) {
+        showNoResults(true);
+        return;
+      }
+      showNoResults(false);
+      learners.forEach((learner) => {
+        const createdAt = learner.createdAt ? new Date(learner.createdAt).toLocaleString() : 'N/A';
+        const row = `
+          <tr class="hover:bg-white/5 transition-colors">
+            <td class="py-3 px-4 text-sm">${learner.studentId}</td>
+            <td class="py-3 px-4 text-sm">${learner.name}</td>
+            <td class="py-3 px-4 text-sm">${learner.surname}</td>
+            <td class="py-3 px-4 text-sm text-gray-400">${createdAt}</td>
+          </tr>
+        `;
+        learnerTableBody.innerHTML += row;
+      });
+    }
+    
+    // Search functionality
+    searchInput.addEventListener('input', (e) => {
+      const searchTerm = e.target.value.toLowerCase().trim();
+      if (!searchTerm) {
+        renderLearners(allLearners);
+        return;
+      }
+      const filtered = allLearners.filter(learner => 
+        learner.name.toLowerCase().includes(searchTerm) ||
+        learner.surname.toLowerCase().includes(searchTerm) ||
+        learner.studentId.toLowerCase().includes(searchTerm)
+      );
+      renderLearners(filtered);
+    });
+    
+    function showNoResults(show) {
+      noResults.classList.toggle('hidden', !show);
+    }
+  </script>
+  <!-- Pulse animation -->
+  <style>
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 0.2; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(1.05); }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 18s infinite ease-in-out;
+    }
+    .delay-1000 {
+      animation-delay: 1s;
+    }
+  </style>
 </body>
 </html>
