@@ -41,14 +41,12 @@
             <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-1.01 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.77 20.39 6.62 23 12 23z" fill="#34A853"/><path d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z" fill="#FBBC05"/><path d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.62 0 2.77 2.61 0.96 6.34l4.55 2.45C6.42 6.02 8.98 4.98 12 4.98z" fill="#EA4335"/></svg>
             Continue with Google
           </button>
-          <div id="googleSuccess" class="hidden text-green-500 text-sm font-medium flex items-center justify-center gap-2">
-            Signed in as <span id="signedInName"></span>
-          </div>
+          <div id="googleSuccess" class="hidden text-green-500 text-sm font-medium">Verified Identity ✓</div>
         </div>
         <div id="passwordSection" class="space-y-3 opacity-50 pointer-events-none">
           <label class="text-xs uppercase tracking-widest text-slate-400 font-bold">Step 2: Authorization</label>
-          <input type="password" id="mngPasswordInput" placeholder="Enter Management Key" class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none focus:ring-2 focus:ring-neon-cyan text-center">
-          <button id="unlockBtn" class="w-full bg-slate-800 dark:bg-neon-cyan text-white font-bold py-3 rounded-xl">Unlock Dashboard</button>
+          <input type="password" id="mngPasswordInput" placeholder="Enter Management Key" class="w-full px-4 py-3 rounded-xl bg-slate-100 dark:bg-slate-800 border-none text-center">
+          <button id="unlockBtn" class="w-full bg-neon-cyan text-white font-bold py-3 rounded-xl">Unlock Dashboard</button>
         </div>
       </div>
     </div>
@@ -56,59 +54,48 @@
 
   <div id="mainDashboard" class="hidden relative min-h-screen px-4 py-12">
     <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center mb-12 gap-6">
-        <div>
-          <h2 class="text-4xl font-orbitron font-bold text-neon-cyan">Admin Dashboard</h2>
-          <p class="text-slate-500">Welcome, <span id="dashUserName" class="text-neon-purple font-medium"></span></p>
-        </div>
+      <div class="flex justify-between items-center mb-12">
+        <h2 class="text-3xl font-orbitron font-bold text-neon-cyan">Admin Dashboard</h2>
         <div class="flex gap-4">
-            <button id="toggleAddBtn" class="px-6 py-2 bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20 rounded-full hover:bg-neon-cyan hover:text-white transition-all">+ Add New Student</button>
-            <button id="logoutBtn" class="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full hover:bg-red-50 hover:text-white transition-all">Sign Out</button>
+            <button id="toggleAddBtn" class="px-6 py-2 bg-neon-cyan/10 text-neon-cyan border border-neon-cyan/20 rounded-full">+ Add Student</button>
+            <button id="logoutBtn" class="px-6 py-2 bg-red-500/10 text-red-500 border border-red-500/20 rounded-full">Sign Out</button>
         </div>
       </div>
 
-      <div id="addStudentSection" class="hidden mb-10 bg-white dark:bg-slate-900/80 backdrop-blur-md p-8 rounded-3xl border border-neon-cyan/20 shadow-xl">
-        <h3 class="text-xl font-orbitron font-bold mb-6 text-neon-purple">Register New Learner</h3>
-        <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <input type="text" id="regId" placeholder="Student ID (e.g. STU001)" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10 focus:ring-2 focus:ring-neon-cyan">
-            <input type="text" id="regName" placeholder="First Name" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10 focus:ring-2 focus:ring-neon-cyan">
-            <input type="text" id="regSurname" placeholder="Surname" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10 focus:ring-2 focus:ring-neon-cyan">
-            <input type="text" id="regIdNum" placeholder="ID/Passport Number" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10 focus:ring-2 focus:ring-neon-cyan">
-            <input type="text" id="regCell" placeholder="Cell Number" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10 focus:ring-2 focus:ring-neon-cyan col-span-1 md:col-span-2">
-            <button type="submit" class="lg:col-span-2 bg-neon-cyan text-white font-bold rounded-lg hover:shadow-lg hover:shadow-neon-cyan/20 transition-all active:scale-95">Save Student Record</button>
+      <div id="addStudentSection" class="hidden mb-10 bg-white dark:bg-slate-900/80 p-8 rounded-3xl border border-neon-cyan/20">
+        <h3 class="text-xl font-orbitron font-bold mb-6 text-neon-purple">System-Generated ID: <span id="nextIdPreview" class="text-white">...</span></h3>
+        <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <input type="text" id="regName" placeholder="First Name" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10">
+            <input type="text" id="regSurname" placeholder="Surname" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10">
+            <input type="text" id="regIdNum" placeholder="ID/Passport Number" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10">
+            <input type="text" id="regCell" placeholder="Cell Number" required class="px-4 py-2 rounded-lg bg-slate-50 dark:bg-slate-800 border-none ring-1 ring-slate-200 dark:ring-white/10">
+            <button type="submit" class="md:col-span-2 bg-neon-cyan text-white font-bold py-3 rounded-lg">Confirm Registration</button>
         </form>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-          <p class="text-slate-400 text-sm uppercase">Total Learners</p>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-white/5">
+          <p class="text-slate-400 text-sm">TOTAL LEARNERS</p>
           <p id="totalStudents" class="text-4xl font-bold">0</p>
         </div>
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-          <p class="text-slate-400 text-sm uppercase">Latest Entry</p>
-          <p id="latestStudent" class="text-xl font-bold text-neon-purple truncate">—</p>
-        </div>
-        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-slate-200 dark:border-white/5 shadow-sm">
-          <p class="text-slate-400 text-sm uppercase">Quick Search</p>
-          <input id="searchInput" type="text" placeholder="Filter list..." class="w-full mt-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded border-none text-sm">
+        <div class="bg-white dark:bg-slate-900 p-6 rounded-2xl border border-white/5">
+          <p class="text-slate-400 text-sm">SEARCH DATABASE</p>
+          <input id="searchInput" type="text" placeholder="Start typing..." class="w-full mt-2 px-3 py-1 bg-slate-100 dark:bg-slate-800 rounded border-none">
         </div>
       </div>
 
-      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-white/5 shadow-xl overflow-hidden">
-        <div class="overflow-x-auto">
-          <table class="w-full text-left">
-            <thead class="bg-slate-50 dark:bg-slate-800/50 text-slate-400 text-xs uppercase">
-              <tr>
-                <th class="px-6 py-4">ID #</th>
-                <th class="px-6 py-4">Full Name</th>
-                <th class="px-6 py-4">ID Number</th>
-                <th class="px-6 py-4">Cell</th>
-                <th class="px-6 py-4 text-center">Action</th>
-              </tr>
-            </thead>
-            <tbody id="studentsTableBody" class="divide-y divide-slate-100 dark:divide-white/5"></tbody>
-          </table>
-        </div>
+      <div class="bg-white dark:bg-slate-900 rounded-3xl border border-white/5 overflow-hidden">
+        <table class="w-full text-left">
+          <thead class="bg-slate-800/50 text-slate-400 text-xs">
+            <tr>
+              <th class="px-6 py-4">STU-ID</th>
+              <th class="px-6 py-4">NAME</th>
+              <th class="px-6 py-4">ID NUMBER</th>
+              <th class="px-6 py-4 text-center">ACTION</th>
+            </tr>
+          </thead>
+          <tbody id="studentsTableBody" class="divide-y divide-white/5"></tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -133,22 +120,17 @@
     const auth = getAuth(app);
     const db = getDatabase(app);
     const googleProvider = new GoogleAuthProvider();
-
     const MNG_PASSWORD = "STU2026";
-    
-    // Auth logic
+    let nextId = "STU001";
+
     onAuthStateChanged(auth, (user) => {
       if (user) {
         document.getElementById('googleSignInBtn').classList.add('hidden');
         document.getElementById('googleSuccess').classList.remove('hidden');
-        document.getElementById('signedInName').textContent = user.displayName;
-        document.getElementById('dashUserName').textContent = user.displayName;
         document.getElementById('passwordSection').classList.remove('opacity-50', 'pointer-events-none');
       } else {
         document.getElementById('authHub').classList.remove('hidden');
         document.getElementById('mainDashboard').classList.add('hidden');
-        document.getElementById('googleSignInBtn').classList.remove('hidden');
-        document.getElementById('googleSuccess').classList.add('hidden');
       }
     });
 
@@ -158,20 +140,33 @@
         document.getElementById('authHub').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         startListening();
-      } else { alert("Wrong Key"); }
+      } else { alert("Invalid Key"); }
     };
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
-    // Toggle Form
+    // Toggle & Auto-ID Logic
     document.getElementById('toggleAddBtn').onclick = () => {
-        const sec = document.getElementById('addStudentSection');
-        sec.classList.toggle('hidden');
+        document.getElementById('addStudentSection').classList.toggle('hidden');
+        calculateNextId();
     };
 
-    // Add Student Logic
+    function calculateNextId() {
+        if (allStudents.length === 0) {
+            nextId = "STU001";
+        } else {
+            // Get all keys, extract numbers, find max
+            const numericIds = allStudents.map(s => {
+                const match = s.key.match(/\d+/);
+                return match ? parseInt(match[0]) : 0;
+            });
+            const maxId = Math.max(...numericIds);
+            nextId = `STU${String(maxId + 1).padStart(3, '0')}`;
+        }
+        document.getElementById('nextIdPreview').textContent = nextId;
+    }
+
     document.getElementById('studentForm').onsubmit = async (e) => {
         e.preventDefault();
-        const id = document.getElementById('regId').value;
         const studentData = {
             name: document.getElementById('regName').value,
             surname: document.getElementById('regSurname').value,
@@ -181,10 +176,10 @@
         };
 
         try {
-            await set(ref(db, `students/${id}`), studentData);
-            alert("Student Added Successfully!");
+            await set(ref(db, `students/${nextId}`), studentData);
             document.getElementById('studentForm').reset();
             document.getElementById('addStudentSection').classList.add('hidden');
+            alert(`Student ${nextId} Registered!`);
         } catch (err) { alert(err.message); }
     };
 
@@ -202,18 +197,15 @@
       const tbody = document.getElementById('studentsTableBody');
       tbody.innerHTML = '';
       document.getElementById('totalStudents').textContent = list.length;
-      document.getElementById('latestStudent').textContent = list[0]?.key || '—';
       
       list.forEach(s => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 dark:hover:bg-slate-800/40 transition-all";
         tr.innerHTML = `
           <td class="px-6 py-4 font-bold text-neon-cyan">${s.key}</td>
-          <td class="px-6 py-4 font-medium">${s.name} ${s.surname}</td>
+          <td class="px-6 py-4">${s.name} ${s.surname}</td>
           <td class="px-6 py-4 text-slate-500">${s.idNumber}</td>
-          <td class="px-6 py-4 text-slate-500">${s.cellNumber || '—'}</td>
           <td class="px-6 py-4 text-center">
-            <button onclick="deleteStudent('${s.key}')" class="text-red-500 hover:text-red-700 font-bold">Delete</button>
+            <button onclick="deleteStudent('${s.key}')" class="text-red-500 hover:font-bold">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
