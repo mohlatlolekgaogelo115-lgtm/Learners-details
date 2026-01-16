@@ -67,7 +67,7 @@
     <script type="module">
         // Import Firebase SDK
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
         // Your Firebase configuration
         const firebaseConfig = {
@@ -82,50 +82,64 @@
 
         // Initialize Firebase
         const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
+        const db = getDatabase(app);
 
-        // Function to fetch and display learners
-        async function loadLearners() {
+        // Function to load and display learners (with realtime updates)
+        function loadLearners() {
             const loading = document.getElementById('loading');
             const errorDiv = document.getElementById('error');
             const table = document.getElementById('learnersTable');
             const tbody = document.getElementById('learnersBody');
 
-            try {
-                // Assuming learners are stored in a Firestore collection named 'learners'
-                // Adjust the collection name if it's different (e.g., 'students' or 'users')
-                const querySnapshot = await getDocs(collection(db, 'learners'));
+            // Assuming learners are stored under a node named '/learners' in Realtime Database
+            // Adjust the path if it's different (e.g., '/students' or '/users')
+            const learnersRef = ref(db, 'learners');
+
+            onValue(learnersRef, (snapshot) => {
+                tbody.innerHTML = ''; // Clear existing rows for updates
                 
-                if (querySnapshot.empty) {
+                const data = snapshot.val();
+                
+                if (!data) {
                     errorDiv.textContent = 'No learners found.';
                     errorDiv.style.display = 'block';
+                    table.style.display = 'none';
+                    loading.style.display = 'none';
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
-                    const data = doc.data();
-                    const row = document.createElement('tr');
-                    
-                    // Adjust these based on your actual data fields
-                    // Example fields: id (doc.id), name, email, age, registrationDate
-                    row.innerHTML = `
-                        <td>${doc.id}</td>
-                        <td>${data.name || 'N/A'}</td>
-                        <td>${data.email || 'N/A'}</td>
-                        <td>${data.age || 'N/A'}</td>
-                        <td>${data.registrationDate ? new Date(data.registrationDate.seconds * 1000).toLocaleDateString() : 'N/A'}</td>
-                    `;
-                    tbody.appendChild(row);
-                });
+                try {
+                    Object.entries(data).forEach(([id, learner]) => {
+                        const row = document.createElement('tr');
+                        
+                        // Adjust these based on your actual data fields
+                        // Example fields: name, email, age, registrationDate (assuming timestamp or ISO string)
+                        row.innerHTML = `
+                            <td>${id}</td>
+                            <td>${learner.name || 'N/A'}</td>
+                            <td>${learner.email || 'N/A'}</td>
+                            <td>${learner.age || 'N/A'}</td>
+                            <td>${learner.registrationDate ? new Date(learner.registrationDate).toLocaleDateString() : 'N/A'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
 
-                table.style.display = 'table';
-            } catch (error) {
+                    table.style.display = 'table';
+                    errorDiv.style.display = 'none';
+                } catch (error) {
+                    console.error('Error processing learners data:', error);
+                    errorDiv.textContent = 'Failed to process learners data. Check console for details.';
+                    errorDiv.style.display = 'block';
+                    table.style.display = 'none';
+                } finally {
+                    loading.style.display = 'none';
+                }
+            }, (error) => {
                 console.error('Error fetching learners:', error);
                 errorDiv.textContent = 'Failed to load learners data. Check console for details.';
                 errorDiv.style.display = 'block';
-            } finally {
                 loading.style.display = 'none';
-            }
+            });
         }
 
         // Load data on page load
