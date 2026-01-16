@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth" data-theme="dark">
+<html lang="en" class="scroll-smooth">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -12,61 +12,55 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           fontFamily: { orbitron: ['Orbitron', 'sans-serif'], sans: ['Inter', 'sans-serif'] },
           colors: { 
-            'neon-cyan': '#00d4ff', 
-            'neon-purple': '#a855f7', 
-            'deep-space': '#05070a' 
+            'neon-cyan': '#0891b2', /* Slightly darker cyan for contrast on white */
+            'neon-purple': '#7e22ce', 
+            'admin-black': '#0f172a'
           }
         }
       }
     }
   </script>
   <style>
-    /* High-Visibility Background Grid */
+    /* Clean Professional Grid */
     .bg-grid {
-      background-size: 40px 40px;
+      background-size: 30px 30px;
       background-image: 
-        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-    }
-    .glow-orb {
-      filter: blur(80px);
-      opacity: 0.6; /* Increased visibility */
+        linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
     }
   </style>
 </head>
-<body class="min-h-screen bg-deep-space text-slate-100 font-sans selection:bg-neon-cyan/30">
+<body class="min-h-screen bg-white text-admin-black font-sans selection:bg-neon-cyan/20">
 
   <div class="fixed inset-0 pointer-events-none z-0">
     <div class="absolute inset-0 bg-grid"></div>
-    <div class="glow-orb absolute -top-20 -left-20 w-[500px] h-[500px] bg-neon-cyan/40 rounded-full"></div>
-    <div class="glow-orb absolute -bottom-40 -right-20 w-[600px] h-[600px] bg-neon-purple/30 rounded-full"></div>
-    <div class="glow-orb absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-blue-600/10 rounded-full"></div>
+    <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[100px]"></div>
+    <div class="absolute -bottom-40 -right-20 w-[600px] h-[600px] bg-neon-purple/5 rounded-full blur-[100px]"></div>
   </div>
 
   <div id="authHub" class="relative z-10 min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-md w-full bg-slate-900/80 backdrop-blur-2xl border border-white/20 p-10 rounded-[2.5rem] shadow-[0_0_50px_rgba(0,0,0,0.5)] text-center">
+    <div class="max-w-md w-full bg-white border border-slate-200 p-10 rounded-[2.5rem] shadow-2xl text-center">
       <h1 class="text-4xl font-orbitron font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent mb-2">Student"Co"</h1>
-      <p class="text-slate-400 mb-10 tracking-widest text-xs uppercase">Secure Management Portal</p>
+      <p class="text-slate-500 mb-10 tracking-widest text-xs uppercase font-semibold">Admin Access Control</p>
 
       <div class="space-y-8">
-        <div id="googleSection" class="space-y-4">
-          <label class="text-[10px] uppercase tracking-[0.3em] text-neon-cyan font-bold">Step 01 / Identity</label>
-          <button id="googleSignInBtn" class="w-full flex items-center justify-center gap-3 bg-white text-slate-900 font-bold py-4 px-4 rounded-2xl hover:scale-[1.02] transition-all active:scale-95 shadow-lg shadow-white/5">
+        <div id="googleSection" class="space-y-4 text-left">
+          <label class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold ml-1">Step 01 / Identity</label>
+          <button id="googleSignInBtn" class="w-full flex items-center justify-center gap-3 bg-slate-900 text-white font-bold py-4 px-4 rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
             <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-1.01 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.77 20.39 6.62 23 12 23z" fill="#34A853"/><path d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z" fill="#FBBC05"/><path d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.62 0 2.77 2.61 0.96 6.34l4.55 2.45C6.42 6.02 8.98 4.98 12 4.98z" fill="#EA4335"/></svg>
-            Google Authorized Access
+            Sign in with Google
           </button>
-          <div id="googleSuccess" class="hidden text-emerald-400 text-sm font-orbitron animate-pulse">Identity Verified ✓</div>
+          <div id="googleSuccess" class="hidden text-emerald-600 text-sm font-semibold text-center">Verified Identity ✓</div>
         </div>
 
-        <div id="passwordSection" class="space-y-4 opacity-30 pointer-events-none transition-opacity duration-500">
-          <label class="text-[10px] uppercase tracking-[0.3em] text-neon-purple font-bold">Step 02 / Command Key</label>
-          <input type="password" id="mngPasswordInput" placeholder="Enter Access Code" class="w-full px-4 py-4 rounded-2xl bg-black/40 border border-white/10 focus:border-neon-purple focus:ring-1 focus:ring-neon-purple text-center text-white outline-none">
-          <button id="unlockBtn" class="w-full bg-gradient-to-r from-neon-cyan to-neon-purple text-white font-bold py-4 rounded-2xl shadow-lg shadow-neon-cyan/20 uppercase tracking-widest text-xs">Unlock System</button>
+        <div id="passwordSection" class="space-y-4 opacity-30 pointer-events-none transition-opacity duration-500 text-left">
+          <label class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold ml-1">Step 02 / Command Key</label>
+          <input type="password" id="mngPasswordInput" placeholder="Enter Access Code" class="w-full px-4 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan text-center text-slate-900 outline-none">
+          <button id="unlockBtn" class="w-full bg-neon-cyan text-white font-bold py-4 rounded-2xl shadow-lg shadow-neon-cyan/20 uppercase tracking-widest text-xs">Unlock System</button>
         </div>
       </div>
     </div>
@@ -74,69 +68,70 @@
 
   <div id="mainDashboard" class="hidden relative z-10 min-h-screen px-4 py-12">
     <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center mb-12 bg-slate-900/60 p-8 rounded-[2rem] border border-white/10 shadow-2xl">
+      <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl">
         <div>
-          <h2 class="text-3xl font-orbitron font-bold text-white mb-2">Admin <span class="text-neon-cyan">Terminal</span></h2>
-          <div class="flex items-center gap-2">
-            <span class="w-2 h-2 bg-emerald-500 rounded-full animate-ping"></span>
-            <p class="text-slate-400 text-sm font-medium">System Online • Session Active</p>
-          </div>
+          <h2 class="text-3xl font-orbitron font-bold text-slate-900 mb-1">Admin <span class="text-neon-cyan">Terminal</span></h2>
+          <p class="text-slate-500 text-sm font-medium">System Status: <span class="text-emerald-600">Online</span></p>
         </div>
         <div class="flex gap-4 mt-6 md:mt-0">
-            <button id="toggleAddBtn" class="px-8 py-3 bg-neon-cyan text-black font-bold rounded-xl hover:shadow-[0_0_20px_rgba(0,212,255,0.4)] transition-all">+ Add Learner</button>
-            <button id="logoutBtn" class="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-red-500 transition-all">Exit</button>
+            <button id="toggleAddBtn" class="px-8 py-3 bg-neon-cyan text-white font-bold rounded-xl hover:shadow-lg transition-all active:scale-95">+ Add Learner</button>
+            <button id="logoutBtn" class="px-8 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-red-50 hover:text-red-600 transition-all">Sign Out</button>
         </div>
       </div>
 
-      <div id="addStudentSection" class="hidden mb-10 bg-slate-900/90 p-8 rounded-[2rem] border-2 border-neon-cyan/50 shadow-[0_0_30px_rgba(0,212,255,0.1)]">
-        <h3 class="text-xl font-orbitron font-bold mb-8 flex justify-between">
-            <span class="text-white">New Record Creation</span>
-            <span class="text-neon-cyan">ID: <span id="nextIdPreview">...</span></span>
+      <div id="addStudentSection" class="hidden mb-10 bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner">
+        <h3 class="text-xl font-orbitron font-bold mb-8 flex justify-between items-center">
+            <span class="text-slate-900">Manual Registration</span>
+            <span class="bg-neon-cyan/10 text-neon-cyan px-4 py-1 rounded-full text-sm">Next ID: <span id="nextIdPreview">...</span></span>
         </h3>
         <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-2">
-                <label class="text-[10px] text-slate-400 uppercase ml-2">First Name</label>
-                <input type="text" id="regName" required class="w-full px-5 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-neon-cyan outline-none">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">First Name</label>
+                <input type="text" id="regName" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
             </div>
-            <div class="space-y-2">
-                <label class="text-[10px] text-slate-400 uppercase ml-2">Surname</label>
-                <input type="text" id="regSurname" required class="w-full px-5 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-neon-cyan outline-none">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Surname</label>
+                <input type="text" id="regSurname" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
             </div>
-            <div class="space-y-2">
-                <label class="text-[10px] text-slate-400 uppercase ml-2">Identification Number</label>
-                <input type="text" id="regIdNum" required class="w-full px-5 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-neon-cyan outline-none">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">ID / Passport Number</label>
+                <input type="text" id="regIdNum" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
             </div>
-            <div class="space-y-2">
-                <label class="text-[10px] text-slate-400 uppercase ml-2">Mobile Contact</label>
-                <input type="text" id="regCell" required class="w-full px-5 py-3 rounded-xl bg-black/40 border border-white/10 focus:border-neon-cyan outline-none">
+            <div class="space-y-1">
+                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Mobile Contact</label>
+                <input type="text" id="regCell" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
             </div>
-            <button type="submit" class="md:col-span-2 bg-gradient-to-r from-neon-cyan to-blue-600 text-white font-bold py-4 rounded-xl shadow-xl hover:scale-[1.01] active:scale-[0.99] transition-all">Initialize New Record</button>
+            <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 transition-all">Complete Registration</button>
         </form>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10">
-        <div class="bg-slate-900/60 p-8 rounded-[2rem] border border-white/10">
-          <p class="text-neon-cyan text-[10px] font-bold tracking-[0.3em] mb-2">DATABASE SIZE</p>
-          <p id="totalStudents" class="text-6xl font-orbitron font-bold">0</p>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+        <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
+          <p class="text-slate-400 text-[10px] font-bold tracking-widest mb-1">TOTAL DATABASE</p>
+          <p id="totalStudents" class="text-5xl font-orbitron font-bold text-slate-900">0</p>
         </div>
-        <div class="bg-slate-900/60 p-8 rounded-[2rem] border border-white/10 flex flex-col justify-center">
-          <p class="text-neon-purple text-[10px] font-bold tracking-[0.3em] mb-4">GLOBAL FILTER</p>
-          <input id="searchInput" type="text" placeholder="Search by name, ID or passport..." class="w-full px-6 py-3 bg-black/40 rounded-xl border border-white/10 focus:border-neon-purple outline-none">
+        <div class="md:col-span-2 bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-center">
+          <p class="text-slate-400 text-[10px] font-bold tracking-widest mb-3">QUICK FILTER</p>
+          <div class="relative">
+            <input id="searchInput" type="text" placeholder="Search by name, ID or passport..." class="w-full px-6 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-neon-cyan outline-none">
+            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">🔍</span>
+          </div>
         </div>
       </div>
 
-      <div class="bg-slate-900/60 rounded-[2rem] border border-white/10 shadow-2xl overflow-hidden">
+      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
         <table class="w-full text-left">
-          <thead class="bg-white/5 text-slate-400 text-[10px] font-bold tracking-widest uppercase">
+          <thead class="bg-slate-50 text-slate-500 text-[10px] font-bold tracking-widest uppercase">
             <tr>
               <th class="px-8 py-5">STU-ID</th>
-              <th class="px-8 py-5">Learner Name</th>
-              <th class="px-8 py-5">ID / Passport</th>
-              <th class="px-8 py-5 text-center">Control</th>
+              <th class="px-8 py-5">Learner</th>
+              <th class="px-8 py-5">ID Number</th>
+              <th class="px-8 py-5 text-center">Action</th>
             </tr>
           </thead>
-          <tbody id="studentsTableBody" class="divide-y divide-white/5"></tbody>
+          <tbody id="studentsTableBody" class="divide-y divide-slate-100"></tbody>
         </table>
+        <div id="noData" class="hidden p-20 text-center text-slate-400 font-medium">No students found in the database.</div>
       </div>
     </div>
   </div>
@@ -187,10 +182,7 @@
         document.getElementById('authHub').classList.add('hidden');
         document.getElementById('mainDashboard').classList.remove('hidden');
         startListening();
-      } else { 
-        alert("ACCESS DENIED: INCORRECT MANAGEMENT KEY"); 
-        document.getElementById('mngPasswordInput').value = "";
-      }
+      } else { alert("ACCESS DENIED: INCORRECT KEY"); }
     };
     document.getElementById('logoutBtn').onclick = () => signOut(auth);
 
@@ -222,13 +214,12 @@
             cellNumber: document.getElementById('regCell').value,
             createdAt: new Date().toISOString()
         };
-
         try {
             await set(ref(db, `students/${nextId}`), studentData);
             document.getElementById('studentForm').reset();
             document.getElementById('addStudentSection').classList.add('hidden');
-            alert(`SUCCESS: Student ${nextId} has been registered.`);
-        } catch (err) { alert("ERROR: " + err.message); }
+            alert(`SUCCESS: Student ${nextId} added.`);
+        } catch (err) { alert(err.message); }
     };
 
     function startListening() {
@@ -242,21 +233,25 @@
 
     function render(list) {
       const tbody = document.getElementById('studentsTableBody');
+      const noData = document.getElementById('noData');
       tbody.innerHTML = '';
       document.getElementById('totalStudents').textContent = list.length;
       
+      if (list.length === 0) noData.classList.remove('hidden');
+      else noData.classList.add('hidden');
+
       list.forEach(s => {
         const tr = document.createElement('tr');
-        tr.className = "hover:bg-white/[0.03] transition-colors group";
+        tr.className = "hover:bg-slate-50 transition-colors";
         tr.innerHTML = `
           <td class="px-8 py-6 font-orbitron font-bold text-neon-cyan">${s.key}</td>
           <td class="px-8 py-6">
-            <div class="text-white font-medium">${s.name} ${s.surname}</div>
-            <div class="text-[10px] text-slate-500 uppercase tracking-widest">${s.cellNumber || 'No Cell'}</div>
+            <div class="text-slate-900 font-semibold">${s.name} ${s.surname}</div>
+            <div class="text-[10px] text-slate-400 uppercase tracking-widest">${s.cellNumber || 'No Cell'}</div>
           </td>
-          <td class="px-8 py-6 text-slate-400 font-mono">${s.idNumber}</td>
+          <td class="px-8 py-6 text-slate-600 font-medium">${s.idNumber}</td>
           <td class="px-8 py-6 text-center">
-            <button onclick="deleteStudent('${s.key}')" class="px-4 py-2 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all text-xs font-bold uppercase tracking-tighter">Delete</button>
+            <button onclick="deleteStudent('${s.key}')" class="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all text-xs font-bold">Delete</button>
           </td>
         `;
         tbody.appendChild(tr);
@@ -264,7 +259,7 @@
     }
 
     window.deleteStudent = async (id) => {
-        if(confirm(`WARNING: This will permanently delete student ${id}. Proceed?`)) {
+        if(confirm(`Permanently delete student ${id}?`)) {
             await remove(ref(db, `students/${id}`));
         }
     };
