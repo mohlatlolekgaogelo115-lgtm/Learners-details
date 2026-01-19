@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <title>Vynix Biz • Dashboard</title>
+  <title>Vynix Biz • Admin Dashboard</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
@@ -144,7 +144,21 @@
     .form-group { margin-bottom: 15px; }
     .form-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
     .btn-block { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    .btn-icon { background: none; border: none; cursor: pointer; color: var(--danger-color); padding: 5px; }
+    
+    .btn-delete { 
+      background: rgba(219, 68, 55, 0.1); 
+      border: none; 
+      color: var(--danger-color); 
+      padding: 8px 12px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 5px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .btn-delete:hover { background: var(--danger-color); color: white; }
   </style>
 </head>
 <body>
@@ -222,7 +236,6 @@
     let allBusinesses = [];
     let currentUser = null;
 
-    // Database Sync
     db.ref('businesses').on('value', snap => {
       const data = snap.val();
       allBusinesses = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
@@ -245,25 +258,27 @@
       `).join('');
     }
 
+    // UPDATED: Show Delete button for ALL items on dashboard
     function renderDashboard() {
       const container = document.getElementById('dashboardContent');
       if (!currentUser) {
-        container.innerHTML = '<p style="padding:40px; text-align:center">Please Sign In to view the database.</p>';
+        container.innerHTML = '<p style="padding:40px; text-align:center">Please Sign In to manage the database.</p>';
         return;
       }
 
-      let html = `<table class="dash-table"><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Owner</th><th>Actions</th></tr></thead><tbody>`;
+      let html = `<table class="dash-table"><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Actions</th></tr></thead><tbody>`;
       
       allBusinesses.forEach(b => {
-        const isOwner = b.ownerId === currentUser.uid;
         html += `
           <tr>
             <td><div class="dash-thumb" style="background-image:url('${b.img}')"></div></td>
-            <td><strong>${b.name}</strong></td>
+            <td><strong>${b.name}</strong><br><span style="font-size:0.7rem; color:#666">${b.address}</span></td>
             <td>${b.cat}</td>
-            <td style="font-size:0.75rem">${isOwner ? 'You' : 'System'}</td>
             <td>
-              ${isOwner ? `<button class="btn-icon" onclick="deleteBiz('${b.id}')"><span class="material-symbols-rounded">delete</span></button>` : '<span style="color:#aaa; font-size:0.7rem">View Only</span>'}
+              <button class="btn-delete" onclick="deleteBiz('${b.id}')">
+                <span class="material-symbols-rounded" style="font-size:18px">delete</span>
+                Delete
+              </button>
             </td>
           </tr>`;
       });
@@ -285,7 +300,9 @@
     }
 
     function deleteBiz(id) {
-      if(confirm("Delete this listing?")) db.ref('businesses').child(id).remove();
+      if(confirm("Are you sure you want to permanently remove this business from the directory?")) {
+        db.ref('businesses').child(id).remove();
+      }
     }
 
     function switchView(view, el) {
