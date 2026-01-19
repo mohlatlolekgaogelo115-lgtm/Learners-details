@@ -17,7 +17,7 @@
   <style>
     :root {
       --bg-body: #F0F4F9;
-      --bg-sidebar: #F0F4F9;
+      --bg-sidebar: rgba(255, 255, 255, 0.85); /* Made slightly transparent */
       --primary-gradient: linear-gradient(135deg, #4285F4, #D96570);
       --text-main: #1F1F1F;
       --text-secondary: #444746;
@@ -32,7 +32,14 @@
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
-      background: var(--bg-body);
+      /* UPDATED: Background Image with Overlay */
+      background-color: var(--bg-body);
+      background-image: linear-gradient(rgba(240, 244, 249, 0.85), rgba(240, 244, 249, 0.95)), 
+                        url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed; /* Keeps image still while scrolling */
+      
       color: var(--text-main);
       font-family: 'Outfit', sans-serif;
       height: 100vh;
@@ -43,12 +50,14 @@
     /* ─── Sidebar ─── */
     .sidebar {
       background: var(--bg-sidebar);
+      backdrop-filter: blur(10px); /* Frosted glass effect */
       width: var(--sidebar-collapsed);
       display: flex;
       flex-direction: column;
       padding: 12px;
       z-index: 50;
       transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+      border-right: 1px solid rgba(255,255,255,0.5);
     }
     @media(min-width: 769px) {
       .sidebar:hover { width: var(--sidebar-width); }
@@ -78,14 +87,17 @@
     /* ─── Main Content ─── */
     .main {
       flex: 1; display: flex; flex-direction: column; position: relative;
-      background: #FFFFFF; border-radius: 24px; margin: 16px 16px 16px 0;
-      box-shadow: 0 0 0 1px rgba(0,0,0,0.02); overflow: hidden;
+      background: rgba(255, 255, 255, 0.9); /* Slightly transparent to show bg */
+      border-radius: 24px; margin: 16px 16px 16px 0;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+      overflow: hidden;
+      backdrop-filter: blur(5px);
     }
     @media(max-width: 768px) { .main { margin: 0; border-radius: 0; } }
 
     .top-bar {
       height: var(--header-height); display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; border-bottom: 1px solid #f0f0f0; z-index: 10; background: rgba(255,255,255,0.9);
+      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10; background: rgba(255,255,255,0.8);
       backdrop-filter: blur(10px); position: absolute; top: 0; width: 100%;
     }
 
@@ -120,6 +132,7 @@
     .filter-bar::-webkit-scrollbar { display: none; }
     .category-pill {
       padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;
+      background: white;
       font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;
     }
     .category-pill.active { background: var(--text-main); color: white; border-color: var(--text-main); }
@@ -404,7 +417,7 @@
     }
 
     function renderCards(data) {
-        els.grid.innerHTML = data.length === 0 ? '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color: #888;">No businesses found.</p>' : '';
+        els.grid.innerHTML = data.length === 0 ? '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color: #555; background:rgba(255,255,255,0.8); border-radius:12px;">No businesses found.</p>' : '';
         data.forEach(biz => {
             const card = document.createElement('div');
             card.className = 'business-card';
