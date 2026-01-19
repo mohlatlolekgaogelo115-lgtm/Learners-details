@@ -16,8 +16,6 @@
 
   <style>
     :root {
-      --bg-body: #F0F4F9;
-      --bg-sidebar: rgba(255, 255, 255, 0.85); /* Made slightly transparent */
       --primary-gradient: linear-gradient(135deg, #4285F4, #D96570);
       --text-main: #1F1F1F;
       --text-secondary: #444746;
@@ -32,13 +30,14 @@
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
 
     body {
-      /* UPDATED: Background Image with Overlay */
-      background-color: var(--bg-body);
-      background-image: linear-gradient(rgba(240, 244, 249, 0.85), rgba(240, 244, 249, 0.95)), 
+      /* ─── GLOBAL BACKGROUND IMAGE ─── */
+      /* This applies to Dashboard and Directory alike */
+      background-color: #F0F4F9;
+      background-image: linear-gradient(rgba(240, 244, 249, 0.9), rgba(240, 244, 249, 0.8)), 
                         url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
-      background-attachment: fixed; /* Keeps image still while scrolling */
+      background-attachment: fixed; /* Parallax effect */
       
       color: var(--text-main);
       font-family: 'Outfit', sans-serif;
@@ -47,20 +46,22 @@
       overflow: hidden;
     }
 
-    /* ─── Sidebar ─── */
+    /* ─── Sidebar with Glass Effect ─── */
     .sidebar {
-      background: var(--bg-sidebar);
-      backdrop-filter: blur(10px); /* Frosted glass effect */
+      background: rgba(255, 255, 255, 0.75); /* Transparent */
+      backdrop-filter: blur(12px);            /* Blur effect */
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid rgba(255,255,255,0.4);
+      
       width: var(--sidebar-collapsed);
       display: flex;
       flex-direction: column;
       padding: 12px;
       z-index: 50;
       transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
-      border-right: 1px solid rgba(255,255,255,0.5);
     }
     @media(min-width: 769px) {
-      .sidebar:hover { width: var(--sidebar-width); }
+      .sidebar:hover { width: var(--sidebar-width); background: rgba(255, 255, 255, 0.95); }
       .sidebar:not(:hover) .nav-label, .sidebar:not(:hover) .brand-text { opacity: 0; display: none; }
       .mobile-menu-trigger { display: none !important; }
     }
@@ -80,37 +81,45 @@
       color: var(--text-secondary); cursor: pointer; text-decoration: none; white-space: nowrap;
       transition: background 0.2s;
     }
-    .nav-item:hover { background: rgba(0,0,0,0.05); color: var(--text-main); }
-    .nav-item.active { background: #D3E3FD; color: #041E49; font-weight: 500; }
+    .nav-item:hover { background: rgba(66, 133, 244, 0.1); color: var(--text-main); }
+    .nav-item.active { background: rgba(66, 133, 244, 0.15); color: #041E49; font-weight: 500; }
     .nav-icon { font-size: 24px; }
 
-    /* ─── Main Content ─── */
+    /* ─── Main Content with Glass Effect ─── */
     .main {
       flex: 1; display: flex; flex-direction: column; position: relative;
-      background: rgba(255, 255, 255, 0.9); /* Slightly transparent to show bg */
+      
+      /* Transparent White to show the Background Image through */
+      background: rgba(255, 255, 255, 0.85); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      
       border-radius: 24px; margin: 16px 16px 16px 0;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.05); 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05); 
+      border: 1px solid rgba(255, 255, 255, 0.5);
       overflow: hidden;
-      backdrop-filter: blur(5px);
     }
     @media(max-width: 768px) { .main { margin: 0; border-radius: 0; } }
 
     .top-bar {
       height: var(--header-height); display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10; background: rgba(255,255,255,0.8);
-      backdrop-filter: blur(10px); position: absolute; top: 0; width: 100%;
+      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10; 
+      background: rgba(255,255,255,0.6); /* Highly transparent header */
+      backdrop-filter: blur(5px); position: absolute; top: 0; width: 100%;
     }
 
     .user-pill {
       display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px;
-      background: #F0F4F9; border-radius: 32px; cursor: pointer; transition: background 0.2s;
+      background: rgba(255,255,255,0.5); border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 32px; cursor: pointer; transition: background 0.2s;
     }
+    .user-pill:hover { background: white; }
     .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; }
 
     .content-scroll { flex: 1; overflow-y: auto; padding-top: var(--header-height); scroll-behavior: smooth; }
 
     /* Views */
-    .view-section { display: none; animation: fadeIn 0.3s ease; }
+    .view-section { display: none; animation: fadeIn 0.4s ease; }
     .view-section.active-view { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -122,19 +131,21 @@
     }
     .search-wrapper { max-width: 600px; margin: 24px auto 0; position: relative; }
     .search-input {
-      width: 100%; padding: 16px 24px 16px 50px; border-radius: 30px; border: 1px solid #e0e0e0;
+      width: 100%; padding: 16px 24px 16px 50px; border-radius: 30px; 
+      border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9);
       font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); outline: none; transition: 0.2s;
     }
-    .search-input:focus { border-color: var(--accent-color); box-shadow: 0 4px 16px rgba(66, 133, 244, 0.15); }
+    .search-input:focus { border-color: var(--accent-color); box-shadow: 0 4px 16px rgba(66, 133, 244, 0.15); background: white; }
     .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
 
     .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 0 24px 20px; justify-content: center; scrollbar-width: none; }
     .filter-bar::-webkit-scrollbar { display: none; }
     .category-pill {
-      padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;
-      background: white;
+      padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(0,0,0,0.1);
+      background: rgba(255,255,255,0.8);
       font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;
     }
+    .category-pill:hover { background: white; }
     .category-pill.active { background: var(--text-main); color: white; border-color: var(--text-main); }
 
     .business-grid {
@@ -142,10 +153,11 @@
       gap: 24px; padding: 24px; max-width: 1200px; margin: 0 auto;
     }
     .business-card {
-      background: white; border: 1px solid #f0f0f0; border-radius: 16px;
+      background: rgba(255,255,255,0.95); border: 1px solid rgba(255,255,255,0.6); border-radius: 16px;
       overflow: hidden; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.02);
     }
-    .business-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+    .business-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); background: white; }
     .card-img { height: 140px; background-color: #f0f0f0; position: relative; background-size: cover; background-position: center; }
     .card-category {
       position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9);
@@ -168,8 +180,8 @@
     .dash-header { padding: 40px 24px 20px; max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
     .dash-table-wrapper { padding: 0 24px; max-width: 1000px; margin: 0 auto; overflow-x: auto; }
     .dash-table { width: 100%; border-collapse: collapse; min-width: 600px; }
-    .dash-table th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid #eee; }
-    .dash-table td { padding: 16px 12px; border-bottom: 1px solid #f9f9f9; vertical-align: middle; }
+    .dash-table th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid rgba(0,0,0,0.1); }
+    .dash-table td { padding: 16px 12px; border-bottom: 1px solid rgba(0,0,0,0.03); vertical-align: middle; }
     .dash-thumb { width: 48px; height: 48px; border-radius: 8px; background-size: cover; background-position: center; background-color: #eee; }
     .status-badge { background: #E6F4EA; color: #137333; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
     .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 50%; }
@@ -184,7 +196,7 @@
     .fab-add:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4); }
 
     /* ─── Modals ─── */
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 40; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 40; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
     .overlay.active { opacity: 1; pointer-events: auto; }
     
     .modal-sheet {
@@ -417,7 +429,7 @@
     }
 
     function renderCards(data) {
-        els.grid.innerHTML = data.length === 0 ? '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color: #555; background:rgba(255,255,255,0.8); border-radius:12px;">No businesses found.</p>' : '';
+        els.grid.innerHTML = data.length === 0 ? '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color: #555; background:rgba(255,255,255,0.7); border-radius:12px;">No businesses found.</p>' : '';
         data.forEach(biz => {
             const card = document.createElement('div');
             card.className = 'business-card';
@@ -449,7 +461,7 @@
         if (myBiz.length === 0) {
             els.dashContent.innerHTML = `
                 <div class="empty-state">
-                    <span class="material-symbols-rounded" style="font-size:48px; color:#ddd; margin-bottom:16px;">store</span>
+                    <span class="material-symbols-rounded" style="font-size:48px; color:#666; margin-bottom:16px;">store</span>
                     <h3>No listings yet</h3>
                     <p>Add your business to get started.</p>
                 </div>`;
@@ -473,7 +485,7 @@
             html += `
                 <tr>
                     <td><div class="dash-thumb" style="background-image:url('${biz.img}')"></div></td>
-                    <td><strong>${biz.name}</strong><br><span style="font-size:0.8rem; color:#888;">${biz.address}</span></td>
+                    <td><strong>${biz.name}</strong><br><span style="font-size:0.8rem; color:#666;">${biz.address}</span></td>
                     <td>${biz.cat}</td>
                     <td><span class="status-badge">Live</span></td>
                     <td style="text-align:right;">
