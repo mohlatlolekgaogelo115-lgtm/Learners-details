@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Vynix Biz • Admin Dashboard</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet"/>
-
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-
+  <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0/dist/fuse.min.js"></script> <!-- Added Fuse.js for AI-powered fuzzy search -->
   <style>
     :root {
       --primary-gradient: linear-gradient(135deg, #4285F4, #D96570);
@@ -26,12 +24,10 @@
       --sidebar-collapsed: 72px;
       --header-height: 70px;
     }
-
     * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
-
     body {
       background-color: #F0F4F9;
-      background-image: linear-gradient(rgba(240, 244, 249, 0.85), rgba(240, 244, 249, 0.75)), 
+      background-image: linear-gradient(rgba(240, 244, 249, 0.85), rgba(240, 244, 249, 0.75)),
                         url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
       background-size: cover;
       background-position: center;
@@ -42,7 +38,6 @@
       display: flex;
       overflow: hidden;
     }
-
     /* Sidebar Glassmorphism */
     .sidebar {
       background: rgba(255, 255, 255, 0.7);
@@ -64,7 +59,6 @@
       .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; background: #fff; transform: translateX(-100%); }
       .sidebar.open { transform: translateX(0); }
     }
-
     .nav-list { flex: 1; display: flex; flex-direction: column; gap: 4px; margin-top: 20px; }
     .nav-item {
       display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 24px;
@@ -73,49 +67,43 @@
     }
     .nav-item:hover { background: rgba(66, 133, 244, 0.1); color: var(--text-main); }
     .nav-item.active { background: rgba(66, 133, 244, 0.15); color: #041E49; font-weight: 600; }
-
     /* Main Panel Glassmorphism */
     .main {
       flex: 1; display: flex; flex-direction: column; position: relative;
-      background: rgba(255, 255, 255, 0.8); 
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       border-radius: 24px; margin: 16px 16px 16px 0;
-      box-shadow: 0 8px 32px rgba(0,0,0,0.05); 
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05);
       border: 1px solid rgba(255, 255, 255, 0.4);
       overflow: hidden;
     }
     @media(max-width: 768px) { .main { margin: 0; border-radius: 0; } }
-
     .top-bar {
       height: var(--header-height); display: flex; align-items: center; justify-content: space-between;
-      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10; 
+      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10;
       background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);
     }
-
     .user-pill {
       display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px;
       background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.8);
       border-radius: 32px; cursor: pointer;
     }
     .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; }
-
     .content-scroll { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
-
     /* Views */
     .view-section { display: none; animation: fadeIn 0.4s ease; }
     .view-section.active-view { display: block; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
     /* Directory Components */
     .hero-section { padding: 60px 24px 40px; text-align: center; }
     .hero-title { font-size: 2.5rem; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; color: transparent; }
     .search-input {
-      width: 100%; max-width: 600px; padding: 16px 24px 16px 50px; border-radius: 30px; 
+      width: 100%; max-width: 600px; padding: 16px 24px 16px 50px; border-radius: 30px;
       border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9); outline: none;
     }
     .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; padding: 24px; }
-    
+   
     .business-card {
       background: rgba(255,255,255,0.9); border: 1px solid white; border-radius: 16px;
       overflow: hidden; transition: 0.2s; cursor: pointer;
@@ -123,7 +111,6 @@
     .business-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
     .card-img { height: 140px; background-size: cover; background-position: center; position: relative; }
     .card-body { padding: 16px; }
-
     /* Dashboard Table */
     .dash-header { padding: 40px 24px 20px; display: flex; justify-content: space-between; align-items: center; }
     .dash-table-wrapper { padding: 0 24px; overflow-x: auto; }
@@ -131,29 +118,28 @@
     .dash-table th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 0.85rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
     .dash-table td { padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
     .dash-thumb { width: 45px; height: 45px; border-radius: 8px; background-size: cover; }
-    
+   
     .status-badge { background: #E6F4EA; color: #137333; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
     .fab-add { background: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
-
     /* Modals */
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 90; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
     .overlay.active { opacity: 1; pointer-events: auto; }
     .modal-sheet { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 90%; max-width: 500px; border-radius: 24px; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; padding: 24px; }
     .modal-sheet.active { opacity: 1; pointer-events: auto; }
-    
+   
     .form-group { margin-bottom: 15px; }
     .form-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
     .btn-block { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
-    
-    .btn-delete { 
-      background: rgba(219, 68, 55, 0.1); 
-      border: none; 
-      color: var(--danger-color); 
-      padding: 8px 12px; 
-      border-radius: 8px; 
-      cursor: pointer; 
-      display: flex; 
-      align-items: center; 
+   
+    .btn-delete {
+      background: rgba(219, 68, 55, 0.1);
+      border: none;
+      color: var(--danger-color);
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
       gap: 5px;
       font-weight: 500;
       transition: 0.2s;
@@ -162,9 +148,7 @@
   </style>
 </head>
 <body>
-
   <div class="overlay" id="overlay" onclick="closeAll()"></div>
-
   <aside class="sidebar" id="sidebar">
     <div style="padding: 10px;">
       <h2 style="display:flex; align-items:center; gap:10px;"><span class="material-symbols-rounded" style="color:#4285F4">business_center</span><span class="brand-text">Vynix Biz</span></h2>
@@ -175,13 +159,11 @@
     </div>
     <div class="nav-item" onclick="handleAuth()"><span class="material-symbols-rounded">login</span><span class="nav-label" id="authLabel">Sign In</span></div>
   </aside>
-
   <main class="main">
     <div class="top-bar">
       <span id="greeting" style="font-weight:600">Hello, Guest</span>
       <div class="user-pill" onclick="handleAuth()"><div class="user-avatar" id="userAvatar" style="background-image:url('https://ui-avatars.com/api/?name=Guest')"></div></div>
     </div>
-
     <div class="content-scroll">
       <div id="view-directory" class="view-section active-view">
         <div class="hero-section">
@@ -192,7 +174,6 @@
         </div>
         <div class="business-grid" id="businessGrid"></div>
       </div>
-
       <div id="view-dashboard" class="view-section">
         <div class="dash-header">
           <h2>Database Management</h2>
@@ -202,7 +183,6 @@
       </div>
     </div>
   </main>
-
   <div class="modal-sheet" id="addModal">
     <h3 style="margin-bottom:20px">List New Business</h3>
     <form onsubmit="submitNewBusiness(event)">
@@ -217,7 +197,6 @@
       <button type="submit" class="btn-block">Publish</button>
     </form>
   </div>
-
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyAojYRIH8FJL5B8yg1b3qxsc29vB3vLC-8",
@@ -227,25 +206,35 @@
       messagingSenderId: "665302840524",
       appId: "1:665302840524:web:e9c1078e14bc0de6a87e69"
     };
-
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
     const db = firebase.database();
     const provider = new firebase.auth.GoogleAuthProvider();
-
     let allBusinesses = [];
     let currentUser = null;
-
+    let fuse; // For Fuse.js instance
     db.ref('businesses').on('value', snap => {
       const data = snap.val();
       allBusinesses = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
+      // Initialize Fuse.js with the data for AI-powered search (fuzzy matching on name, address, category)
+      fuse = new Fuse(allBusinesses, {
+        keys: ['name', 'address', 'cat'],
+        threshold: 0.3, // Lower threshold = stricter matching; adjust for desired fuzziness
+        includeScore: true // Optional: to get relevance scores if needed
+      });
       renderDirectory();
       renderDashboard();
     });
-
     function renderDirectory() {
-      const q = document.getElementById('searchInput').value.toLowerCase();
-      const filtered = allBusinesses.filter(b => b.name.toLowerCase().includes(q));
+      const q = document.getElementById('searchInput').value.trim();
+      let filtered;
+      if (q === '') {
+        filtered = allBusinesses;
+      } else {
+        // Use Fuse.js for AI/fuzzy search
+        const results = fuse.search(q);
+        filtered = results.map(result => result.item);
+      }
       const grid = document.getElementById('businessGrid');
       grid.innerHTML = filtered.map(b => `
         <div class="business-card">
@@ -257,7 +246,6 @@
         </div>
       `).join('');
     }
-
     // UPDATED: Show Delete button for ALL items on dashboard
     function renderDashboard() {
       const container = document.getElementById('dashboardContent');
@@ -265,9 +253,8 @@
         container.innerHTML = '<p style="padding:40px; text-align:center">Please Sign In to manage the database.</p>';
         return;
       }
-
       let html = `<table class="dash-table"><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Actions</th></tr></thead><tbody>`;
-      
+     
       allBusinesses.forEach(b => {
         html += `
           <tr>
@@ -285,7 +272,6 @@
       html += `</tbody></table>`;
       container.innerHTML = html;
     }
-
     function submitNewBusiness(e) {
       e.preventDefault();
       if(!currentUser) return alert("Sign in first");
@@ -298,24 +284,20 @@
       };
       db.ref('businesses').push(newBiz).then(() => closeAll());
     }
-
     function deleteBiz(id) {
       if(confirm("Are you sure you want to permanently remove this business from the directory?")) {
         db.ref('businesses').child(id).remove();
       }
     }
-
     function switchView(view, el) {
       document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
       el.classList.add('active');
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
       document.getElementById('view-' + view).classList.add('active-view');
     }
-
     function handleAuth() {
       auth.currentUser ? auth.signOut() : auth.signInWithPopup(provider);
     }
-
     auth.onAuthStateChanged(user => {
       currentUser = user;
       document.getElementById('greeting').innerText = user ? `Hello, ${user.displayName.split(' ')[0]}` : "Hello, Guest";
@@ -323,17 +305,14 @@
       document.getElementById('authLabel').innerText = user ? "Sign Out" : "Sign In";
       renderDashboard();
     });
-
     function openAddModal() {
       document.getElementById('addModal').classList.add('active');
       document.getElementById('overlay').classList.add('active');
     }
-
     function closeAll() {
       document.getElementById('addModal').classList.remove('active');
       document.getElementById('overlay').classList.remove('active');
     }
-
     document.getElementById('searchInput').oninput = renderDirectory;
   </script>
 </body>
