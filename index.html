@@ -1,273 +1,608 @@
 <!DOCTYPE html>
-<html lang="en" class="scroll-smooth">
+<html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Student"Co" • Admin Portal</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Vynix Biz • Dashboard</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Symbols+Rounded" rel="stylesheet"/>
 
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      theme: {
-        extend: {
-          fontFamily: { orbitron: ['Orbitron', 'sans-serif'], sans: ['Inter', 'sans-serif'] },
-          colors: { 
-            'neon-cyan': '#0891b2', /* Slightly darker cyan for contrast on white */
-            'neon-purple': '#7e22ce', 
-            'admin-black': '#0f172a'
-          }
-        }
-      }
-    }
-  </script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+
   <style>
-    /* Clean Professional Grid */
-    .bg-grid {
-      background-size: 30px 30px;
-      background-image: 
-        linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    :root {
+      --bg-body: #F0F4F9;
+      --bg-sidebar: #F0F4F9;
+      --primary-gradient: linear-gradient(135deg, #4285F4, #D96570);
+      --text-main: #1F1F1F;
+      --text-secondary: #444746;
+      --text-muted: #8E918F;
+      --accent-color: #4285F4;
+      --danger-color: #DB4437;
+      --sidebar-width: 260px;
+      --sidebar-collapsed: 72px;
+      --header-height: 70px;
     }
+
+    * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+
+    body {
+      background: var(--bg-body);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    /* ─── Sidebar ─── */
+    .sidebar {
+      background: var(--bg-sidebar);
+      width: var(--sidebar-collapsed);
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      z-index: 50;
+      transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
+    }
+    @media(min-width: 769px) {
+      .sidebar:hover { width: var(--sidebar-width); }
+      .sidebar:not(:hover) .nav-label, .sidebar:not(:hover) .brand-text { opacity: 0; display: none; }
+      .mobile-menu-trigger { display: none !important; }
+    }
+    @media(max-width: 768px) {
+      .sidebar {
+        position: fixed; left: 0; top: 0; bottom: 0;
+        width: 280px; background: #fff;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0,0,0,0.15);
+      }
+      .sidebar.open { transform: translateX(0); }
+    }
+
+    .nav-list { flex: 1; display: flex; flex-direction: column; gap: 4px; margin-top: 20px; }
+    .nav-item {
+      display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 24px;
+      color: var(--text-secondary); cursor: pointer; text-decoration: none; white-space: nowrap;
+      transition: background 0.2s;
+    }
+    .nav-item:hover { background: rgba(0,0,0,0.05); color: var(--text-main); }
+    .nav-item.active { background: #D3E3FD; color: #041E49; font-weight: 500; }
+    .nav-icon { font-size: 24px; }
+
+    /* ─── Main Content ─── */
+    .main {
+      flex: 1; display: flex; flex-direction: column; position: relative;
+      background: #FFFFFF; border-radius: 24px; margin: 16px 16px 16px 0;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.02); overflow: hidden;
+    }
+    @media(max-width: 768px) { .main { margin: 0; border-radius: 0; } }
+
+    .top-bar {
+      height: var(--header-height); display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid #f0f0f0; z-index: 10; background: rgba(255,255,255,0.9);
+      backdrop-filter: blur(10px); position: absolute; top: 0; width: 100%;
+    }
+
+    .user-pill {
+      display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px;
+      background: #F0F4F9; border-radius: 32px; cursor: pointer; transition: background 0.2s;
+    }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; }
+
+    .content-scroll { flex: 1; overflow-y: auto; padding-top: var(--header-height); scroll-behavior: smooth; }
+
+    /* Views */
+    .view-section { display: none; animation: fadeIn 0.3s ease; }
+    .view-section.active-view { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Directory Styles */
+    .hero-section { padding: 60px 24px 40px; text-align: center; }
+    .hero-title {
+      font-size: 2.5rem; font-weight: 700; margin-bottom: 12px;
+      background: var(--primary-gradient); -webkit-background-clip: text; color: transparent;
+    }
+    .search-wrapper { max-width: 600px; margin: 24px auto 0; position: relative; }
+    .search-input {
+      width: 100%; padding: 16px 24px 16px 50px; border-radius: 30px; border: 1px solid #e0e0e0;
+      font-size: 1rem; box-shadow: 0 4px 12px rgba(0,0,0,0.05); outline: none; transition: 0.2s;
+    }
+    .search-input:focus { border-color: var(--accent-color); box-shadow: 0 4px 16px rgba(66, 133, 244, 0.15); }
+    .search-icon { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+    .filter-bar { display: flex; gap: 10px; overflow-x: auto; padding: 0 24px 20px; justify-content: center; scrollbar-width: none; }
+    .filter-bar::-webkit-scrollbar { display: none; }
+    .category-pill {
+      padding: 8px 16px; border-radius: 20px; border: 1px solid #e0e0e0;
+      font-size: 0.9rem; font-weight: 500; cursor: pointer; white-space: nowrap; transition: 0.2s;
+    }
+    .category-pill.active { background: var(--text-main); color: white; border-color: var(--text-main); }
+
+    .business-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 24px; padding: 24px; max-width: 1200px; margin: 0 auto;
+    }
+    .business-card {
+      background: white; border: 1px solid #f0f0f0; border-radius: 16px;
+      overflow: hidden; transition: 0.2s; cursor: pointer; display: flex; flex-direction: column;
+    }
+    .business-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.08); }
+    .card-img { height: 140px; background-color: #f0f0f0; position: relative; background-size: cover; background-position: center; }
+    .card-category {
+      position: absolute; top: 12px; left: 12px; background: rgba(255,255,255,0.9);
+      padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+    }
+    .card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+    .biz-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+    .biz-rating { display: flex; align-items: center; gap: 4px; font-size: 0.9rem; color: #F4B400; margin-bottom: 12px; }
+    .biz-info { display: flex; align-items: center; gap: 8px; color: var(--text-secondary); font-size: 0.85rem; margin-bottom: 6px; }
+    .card-footer { margin-top: auto; padding-top: 16px; display: flex; gap: 8px; }
+    .action-btn {
+      flex: 1; padding: 8px; border-radius: 8px; border: 1px solid #e0e0e0;
+      background: transparent; font-weight: 500; font-size: 0.85rem; cursor: pointer; transition: 0.2s;
+    }
+    .action-btn:hover { background: #f8f9fa; }
+    .action-btn.primary { background: var(--text-main); color: white; border: none; }
+    .action-btn.primary:hover { opacity: 0.9; }
+
+    /* ─── Dashboard Specific Styles ─── */
+    .dash-header { padding: 40px 24px 20px; max-width: 1000px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+    .dash-table-wrapper { padding: 0 24px; max-width: 1000px; margin: 0 auto; overflow-x: auto; }
+    .dash-table { width: 100%; border-collapse: collapse; min-width: 600px; }
+    .dash-table th { text-align: left; padding: 12px; color: var(--text-muted); font-weight: 500; font-size: 0.85rem; border-bottom: 1px solid #eee; }
+    .dash-table td { padding: 16px 12px; border-bottom: 1px solid #f9f9f9; vertical-align: middle; }
+    .dash-thumb { width: 48px; height: 48px; border-radius: 8px; background-size: cover; background-position: center; background-color: #eee; }
+    .status-badge { background: #E6F4EA; color: #137333; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .btn-icon { background: none; border: none; cursor: pointer; color: var(--text-muted); padding: 4px; border-radius: 50%; }
+    .btn-icon:hover { background: #f0f0f0; color: var(--danger-color); }
+    
+    .empty-state { text-align: center; padding: 60px 20px; color: var(--text-muted); }
+    .fab-add {
+      background: var(--accent-color); color: white; border: none; padding: 12px 20px;
+      border-radius: 30px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px;
+      box-shadow: 0 4px 12px rgba(66, 133, 244, 0.3); transition: 0.2s;
+    }
+    .fab-add:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(66, 133, 244, 0.4); }
+
+    /* ─── Modals ─── */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 40; opacity: 0; pointer-events: none; transition: 0.3s; }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+    
+    .modal-sheet {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%) scale(0.95);
+      background: white; width: 90%; max-width: 500px; border-radius: 24px;
+      z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.2); overflow: hidden;
+    }
+    .modal-sheet.active { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%) scale(1); }
+    
+    .modal-img-header { height: 180px; background-size: cover; position: relative; }
+    .modal-close {
+      position: absolute; top: 16px; right: 16px; background: white; border: none;
+      width: 32px; height: 32px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1); z-index: 2;
+    }
+    .modal-content { padding: 24px; }
+
+    /* Form Styles */
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); }
+    .form-input, .form-select {
+      width: 100%; padding: 12px; border-radius: 12px; border: 1px solid #e0e0e0;
+      font-family: inherit; font-size: 0.95rem; outline: none; transition: 0.2s;
+    }
+    .form-input:focus, .form-select:focus { border-color: var(--accent-color); }
+    .btn-block { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
   </style>
 </head>
-<body class="min-h-screen bg-white text-admin-black font-sans selection:bg-neon-cyan/20">
+<body>
 
-  <div class="fixed inset-0 pointer-events-none z-0">
-    <div class="absolute inset-0 bg-grid"></div>
-    <div class="absolute -top-20 -left-20 w-[500px] h-[500px] bg-neon-cyan/5 rounded-full blur-[100px]"></div>
-    <div class="absolute -bottom-40 -right-20 w-[600px] h-[600px] bg-neon-purple/5 rounded-full blur-[100px]"></div>
-  </div>
+  <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-  <div id="authHub" class="relative z-10 min-h-screen flex items-center justify-center p-6">
-    <div class="max-w-md w-full bg-white border border-slate-200 p-10 rounded-[2.5rem] shadow-2xl text-center">
-      <h1 class="text-4xl font-orbitron font-bold bg-gradient-to-r from-neon-cyan to-neon-purple bg-clip-text text-transparent mb-2">Student"Co"</h1>
-      <p class="text-slate-500 mb-10 tracking-widest text-xs uppercase font-semibold">Admin Access Control</p>
-
-      <div class="space-y-8">
-        <div id="googleSection" class="space-y-4 text-left">
-          <label class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold ml-1">Step 01 / Identity</label>
-          <button id="googleSignInBtn" class="w-full flex items-center justify-center gap-3 bg-slate-900 text-white font-bold py-4 px-4 rounded-2xl hover:bg-slate-800 transition-all active:scale-95 shadow-lg shadow-slate-200">
-            <svg class="w-5 h-5" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.51h5.84c-.25 1.31-.98 2.42-2.07 3.16v2.63h3.35c1.96-1.81 3.09-4.47 3.09-7.25z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-1.01 7.28-2.73l-3.35-2.63c-1.01.68-2.29 1.08-3.93 1.08-3.02 0-5.58-2.04-6.49-4.79H.96v2.67C2.77 20.39 6.62 23 12 23z" fill="#34A853"/><path d="M5.51 14.21c-.23-.68-.36-1.41-.36-2.21s.13-1.53.36-2.21V7.34H.96C.35 8.85 0 10.39 0 12s.35 3.15.96 4.66l4.55-2.45z" fill="#FBBC05"/><path d="M12 4.98c1.64 0 3.11.56 4.27 1.66l3.19-3.19C17.46 1.01 14.97 0 12 0 6.62 0 2.77 2.61 0.96 6.34l4.55 2.45C6.42 6.02 8.98 4.98 12 4.98z" fill="#EA4335"/></svg>
-            Sign in with Google
-          </button>
-          <div id="googleSuccess" class="hidden text-emerald-600 text-sm font-semibold text-center">Verified Identity ✓</div>
-        </div>
-
-        <div id="passwordSection" class="space-y-4 opacity-30 pointer-events-none transition-opacity duration-500 text-left">
-          <label class="text-[10px] uppercase tracking-[0.2em] text-slate-400 font-bold ml-1">Step 02 / Command Key</label>
-          <input type="password" id="mngPasswordInput" placeholder="Enter Access Code" class="w-full px-4 py-4 rounded-2xl bg-slate-50 border border-slate-200 focus:border-neon-cyan focus:ring-1 focus:ring-neon-cyan text-center text-slate-900 outline-none">
-          <button id="unlockBtn" class="w-full bg-neon-cyan text-white font-bold py-4 rounded-2xl shadow-lg shadow-neon-cyan/20 uppercase tracking-widest text-xs">Unlock System</button>
-        </div>
+  <aside class="sidebar" id="sidebar">
+    <div style="padding: 10px 10px 20px;">
+        <h2 style="font-size: 1.2rem; font-weight: 700; display:flex; align-items:center; gap:10px;">
+           <span class="material-symbols-rounded" style="color: #4285F4;">business_center</span>
+           <span class="brand-text">Vynix Biz</span>
+        </h2>
+    </div>
+    <div class="nav-list">
+      <div class="nav-item active" onclick="switchView('directory', this)">
+        <span class="material-symbols-rounded nav-icon">storefront</span>
+        <span class="nav-label">Directory</span>
+      </div>
+      <div class="nav-item" onclick="switchView('dashboard', this)">
+        <span class="material-symbols-rounded nav-icon">dashboard</span>
+        <span class="nav-label">Dashboard</span>
       </div>
     </div>
-  </div>
-
-  <div id="mainDashboard" class="hidden relative z-10 min-h-screen px-4 py-12">
-    <div class="max-w-6xl mx-auto">
-      <div class="flex flex-col md:flex-row justify-between items-center mb-8 bg-white p-8 rounded-[2rem] border border-slate-200 shadow-xl">
-        <div>
-          <h2 class="text-3xl font-orbitron font-bold text-slate-900 mb-1">Admin <span class="text-neon-cyan">Portal</span></h2>
-          <p class="text-slate-500 text-sm font-medium">System Status: <span class="text-emerald-600">Online</span></p>
-        </div>
-        <div class="flex gap-4 mt-6 md:mt-0">
-            <button id="toggleAddBtn" class="px-8 py-3 bg-neon-cyan text-white font-bold rounded-xl hover:shadow-lg transition-all active:scale-95">+ Add Learner</button>
-            <button id="logoutBtn" class="px-8 py-3 bg-white border border-slate-200 text-slate-600 font-bold rounded-xl hover:bg-red-50 hover:text-red-600 transition-all">Sign Out</button>
-        </div>
+    <div style="margin-top: auto;">
+      <div class="nav-item" id="authBtnSidebar" onclick="handleAuth()">
+        <span class="material-symbols-rounded nav-icon">login</span>
+        <span class="nav-label">Sign In</span>
       </div>
+    </div>
+  </aside>
 
-      <div id="addStudentSection" class="hidden mb-10 bg-slate-50 p-8 rounded-[2rem] border border-slate-200 shadow-inner">
-        <h3 class="text-xl font-orbitron font-bold mb-8 flex justify-between items-center">
-            <span class="text-slate-900">Manual Registration</span>
-            <span class="bg-neon-cyan/10 text-neon-cyan px-4 py-1 rounded-full text-sm">Next ID: <span id="nextIdPreview">...</span></span>
-        </h3>
-        <form id="studentForm" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">First Name</label>
-                <input type="text" id="regName" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Surname</label>
-                <input type="text" id="regSurname" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">ID / Passport Number</label>
-                <input type="text" id="regIdNum" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
-            </div>
-            <div class="space-y-1">
-                <label class="text-[10px] text-slate-500 uppercase font-bold ml-1">Mobile Contact</label>
-                <input type="text" id="regCell" required class="w-full px-5 py-3 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan outline-none">
-            </div>
-            <button type="submit" class="md:col-span-2 bg-slate-900 text-white font-bold py-4 rounded-xl shadow-lg hover:bg-slate-800 transition-all">Complete Registration</button>
-        </form>
+  <main class="main">
+    <div class="top-bar">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <button class="mobile-menu-trigger" onclick="toggleSidebar()" style="background:none; border:none; padding:8px;"><span class="material-symbols-rounded">menu</span></button>
+        <span id="greetingName" style="font-weight:600; color:var(--text-secondary)">Hello, Guest</span>
       </div>
+      <div class="user-pill" onclick="handleAuth()">
+        <div class="user-avatar" id="userAvatar" style="background-image: url('https://ui-avatars.com/api/?name=Guest')"></div>
+      </div>
+    </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div class="bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm">
-          <p class="text-slate-400 text-[10px] font-bold tracking-widest mb-1">TOTAL DATABASE</p>
-          <p id="totalStudents" class="text-5xl font-orbitron font-bold text-slate-900">0</p>
-        </div>
-        <div class="md:col-span-2 bg-white p-8 rounded-[2rem] border border-slate-200 shadow-sm flex flex-col justify-center">
-          <p class="text-slate-400 text-[10px] font-bold tracking-widest mb-3">QUICK FILTER</p>
-          <div class="relative">
-            <input id="searchInput" type="text" placeholder="Search by name, ID or passport..." class="w-full px-6 py-3 bg-slate-50 rounded-xl border border-slate-200 focus:border-neon-cyan outline-none">
-            <span class="absolute right-4 top-1/2 -translate-y-1/2 text-slate-300">🔍</span>
+    <div class="content-scroll">
+      
+      <div id="view-directory" class="view-section active-view">
+        <div class="hero-section">
+          <h1 class="hero-title">Find Local Businesses</h1>
+          <p style="color:var(--text-secondary);">Live data powered by Vynix Cloud.</p>
+          <div class="search-wrapper">
+            <span class="material-symbols-rounded search-icon">search</span>
+            <input type="text" class="search-input" id="searchInput" placeholder="Search businesses..." autocomplete="off">
           </div>
         </div>
+
+        <div class="filter-bar" id="categoryContainer">
+          <div class="category-pill active" onclick="filterCategory('All', this)">All</div>
+          <div class="category-pill" onclick="filterCategory('Restaurant', this)">Restaurant</div>
+          <div class="category-pill" onclick="filterCategory('Retail', this)">Retail</div>
+          <div class="category-pill" onclick="filterCategory('Service', this)">Service</div>
+          <div class="category-pill" onclick="filterCategory('Tech', this)">Tech</div>
+        </div>
+
+        <div class="business-grid" id="businessGrid">
+          </div>
       </div>
 
-      <div class="bg-white rounded-[2rem] border border-slate-200 shadow-xl overflow-hidden">
-        <table class="w-full text-left">
-          <thead class="bg-slate-50 text-slate-500 text-[10px] font-bold tracking-widest uppercase">
-            <tr>
-              <th class="px-8 py-5">STU-ID</th>
-              <th class="px-8 py-5">Learner</th>
-              <th class="px-8 py-5">ID Number</th>
-              <th class="px-8 py-5 text-center">Action</th>
-            </tr>
-          </thead>
-          <tbody id="studentsTableBody" class="divide-y divide-slate-100"></tbody>
-        </table>
-        <div id="noData" class="hidden p-20 text-center text-slate-400 font-medium">No students found in the database.</div>
+      <div id="view-dashboard" class="view-section">
+        <div class="dash-header">
+            <div>
+                <h1 style="font-size:1.8rem; font-weight:700;">My Businesses</h1>
+                <p style="color:var(--text-secondary); margin-top:4px;">Manage your active listings</p>
+            </div>
+            <button class="fab-add" onclick="openAddModal()">
+                <span class="material-symbols-rounded">add</span> New
+            </button>
+        </div>
+
+        <div class="dash-table-wrapper">
+            <div id="dashboardContent">
+                </div>
+        </div>
       </div>
+
+    </div>
+  </main>
+
+  <div class="modal-sheet" id="detailModal">
+    <div class="modal-img-header" id="modalImg">
+        <button class="modal-close" onclick="closeAll()"><span class="material-symbols-rounded">close</span></button>
+        <span class="card-category" id="modalCat" style="top:auto; bottom:12px; left:12px;">Category</span>
+    </div>
+    <div class="modal-content">
+        <h2 id="modalTitle" style="font-weight:700; margin-bottom:8px;">Business Name</h2>
+        <div class="biz-rating" style="margin-bottom:20px;">
+            <span class="material-symbols-rounded" style="font-size:20px;">star</span>
+            <strong id="modalRating" style="color:#1f1f1f;">0.0</strong> <span id="modalReviews">(0 reviews)</span>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:24px;">
+            <div class="biz-info"><span class="material-symbols-rounded">location_on</span> <span id="modalAddress">Address</span></div>
+            <div class="biz-info"><span class="material-symbols-rounded">call</span> <span id="modalPhone">Phone</span></div>
+        </div>
+        <button class="action-btn primary" style="width:100%; padding:14px;">Contact Now</button>
     </div>
   </div>
 
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
-    import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
-    import { getDatabase, ref, onValue, remove, set } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js";
+  <div class="modal-sheet" id="addModal" style="max-width:400px;">
+    <div style="padding:20px 24px 0; display:flex; justify-content:space-between; align-items:center;">
+        <h3 style="font-weight:700; font-size:1.2rem;">List New Business</h3>
+        <button onclick="closeAll()" style="background:none; border:none; cursor:pointer;"><span class="material-symbols-rounded">close</span></button>
+    </div>
+    <div class="modal-content">
+        <form id="addBusinessForm" onsubmit="submitNewBusiness(event)">
+            <div class="form-group">
+                <label class="form-label">Business Name</label>
+                <input type="text" class="form-input" id="inpName" required placeholder="e.g. Joe's Diner">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Category</label>
+                <select class="form-select" id="inpCat">
+                    <option value="Restaurant">Restaurant</option>
+                    <option value="Retail">Retail</option>
+                    <option value="Service">Service</option>
+                    <option value="Tech">Tech</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Address</label>
+                <input type="text" class="form-input" id="inpAddress" required placeholder="123 Market St">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" class="form-input" id="inpPhone" required placeholder="(555) 123-4567">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Image URL</label>
+                <input type="url" class="form-input" id="inpImg" placeholder="https://..." value="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=600&q=80">
+            </div>
+            <button type="submit" class="btn-block">Publish Listing</button>
+        </form>
+    </div>
+  </div>
 
+  <script>
+    // ─── 1. Firebase Configuration ───
     const firebaseConfig = {
-      apiKey: "AIzaSyCeJ-v25H3e8H6SOAJlhss81RO6aSPzhzk",
-      authDomain: "student-co-45e92.firebaseapp.com",
-      databaseURL: "https://student-co-45e92-default-rtdb.firebaseio.com",
-      projectId: "student-co-45e92",
-      storageBucket: "student-co-45e92.firebasestorage.app",
-      messagingSenderId: "55508513562",
-      appId: "1:55508513562:web:d38cc47b259ffecc9432a3",
-      measurementId: "G-1VVHXLGPF6"
+      apiKey: "AIzaSyAojYRIH8FJL5B8yg1b3qxsc29vB3vLC-8",
+      authDomain: "allbusiness-596cc.firebaseapp.com",
+      projectId: "allbusiness-596cc",
+      storageBucket: "allbusiness-596cc.firebasestorage.app",
+      messagingSenderId: "665302840524",
+      appId: "1:665302840524:web:e9c1078e14bc0de6a87e69",
+      measurementId: "G-EMZFX7CE8V"
     };
 
-    const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
-    const db = getDatabase(app);
-    const googleProvider = new GoogleAuthProvider();
-    const MNG_PASSWORD = "STU2026";
-    let nextId = "STU001";
-    let allStudents = [];
+    if (!firebase.apps.length) {
+        firebase.initializeApp(firebaseConfig);
+    }
+    const auth = firebase.auth();
+    const db = firebase.database();
+    const provider = new firebase.auth.GoogleAuthProvider();
 
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        document.getElementById('googleSignInBtn').classList.add('hidden');
-        document.getElementById('googleSuccess').classList.remove('hidden');
-        document.getElementById('passwordSection').classList.replace('opacity-30', 'opacity-100');
-        document.getElementById('passwordSection').classList.remove('pointer-events-none');
-      } else {
-        document.getElementById('authHub').classList.remove('hidden');
-        document.getElementById('mainDashboard').classList.add('hidden');
-        document.getElementById('googleSignInBtn').classList.remove('hidden');
-        document.getElementById('googleSuccess').classList.add('hidden');
-        document.getElementById('passwordSection').classList.replace('opacity-100', 'opacity-30');
-        document.getElementById('passwordSection').classList.add('pointer-events-none');
-      }
+    // ─── 2. State & Elements ───
+    let allBusinesses = [];
+    let currentCategory = 'All';
+    let currentUser = null;
+
+    const els = {
+      grid: document.getElementById('businessGrid'),
+      dashContent: document.getElementById('dashboardContent'),
+      search: document.getElementById('searchInput'),
+      sidebar: document.getElementById('sidebar'),
+      overlay: document.getElementById('overlay'),
+      modalDetail: document.getElementById('detailModal'),
+      modalAdd: document.getElementById('addModal'),
+      greeting: document.getElementById('greetingName'),
+      avatar: document.getElementById('userAvatar')
+    };
+
+    // ─── 3. Database Functions ───
+    function initDatabaseListener() {
+        const bizRef = db.ref('businesses');
+        bizRef.on('value', (snapshot) => {
+            const data = snapshot.val();
+            if (data) {
+                allBusinesses = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            } else {
+                allBusinesses = [];
+            }
+            filterBusinesses(); // Update Directory
+            if(currentUser) renderDashboard(); // Update Dashboard if logged in
+        });
+    }
+
+    // ─── 4. Directory Logic ───
+    function filterBusinesses() {
+        const query = els.search.value.toLowerCase();
+        const filtered = allBusinesses.filter(biz => {
+            const matchesSearch = biz.name.toLowerCase().includes(query) || biz.cat.toLowerCase().includes(query);
+            const matchesCat = currentCategory === 'All' || biz.cat === currentCategory;
+            return matchesSearch && matchesCat;
+        });
+        renderCards(filtered);
+    }
+
+    function renderCards(data) {
+        els.grid.innerHTML = data.length === 0 ? '<p style="grid-column: 1/-1; text-align:center; padding: 40px; color: #888;">No businesses found.</p>' : '';
+        data.forEach(biz => {
+            const card = document.createElement('div');
+            card.className = 'business-card';
+            card.onclick = () => openDetailModal(biz);
+            card.innerHTML = `
+                <div class="card-img" style="background-image: url('${biz.img || 'https://via.placeholder.com/300'}')">
+                    <span class="card-category">${biz.cat}</span>
+                </div>
+                <div class="card-body">
+                    <div class="biz-name">${biz.name}</div>
+                    <div class="biz-rating"><span class="material-symbols-rounded" style="font-size:16px;">star</span>${biz.rating || 'New'} <span>(${biz.reviews || 0})</span></div>
+                    <div class="biz-info"><span class="material-symbols-rounded" style="font-size:16px">location_on</span>${biz.address}</div>
+                    <div class="card-footer">
+                        <button class="action-btn">Map</button>
+                        <button class="action-btn primary">Call</button>
+                    </div>
+                </div>`;
+            els.grid.appendChild(card);
+        });
+    }
+
+    // ─── 5. Dashboard Logic ───
+    function renderDashboard() {
+        if (!currentUser) return;
+
+        // Filter businesses created by this user
+        const myBiz = allBusinesses.filter(b => b.ownerId === currentUser.uid);
+
+        if (myBiz.length === 0) {
+            els.dashContent.innerHTML = `
+                <div class="empty-state">
+                    <span class="material-symbols-rounded" style="font-size:48px; color:#ddd; margin-bottom:16px;">store</span>
+                    <h3>No listings yet</h3>
+                    <p>Add your business to get started.</p>
+                </div>`;
+            return;
+        }
+
+        let html = `
+            <table class="dash-table">
+                <thead>
+                    <tr>
+                        <th width="60">Image</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Status</th>
+                        <th style="text-align:right;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>`;
+
+        myBiz.forEach(biz => {
+            html += `
+                <tr>
+                    <td><div class="dash-thumb" style="background-image:url('${biz.img}')"></div></td>
+                    <td><strong>${biz.name}</strong><br><span style="font-size:0.8rem; color:#888;">${biz.address}</span></td>
+                    <td>${biz.cat}</td>
+                    <td><span class="status-badge">Live</span></td>
+                    <td style="text-align:right;">
+                        <button class="btn-icon" onclick="deleteBusiness('${biz.id}')" title="Delete">
+                            <span class="material-symbols-rounded">delete</span>
+                        </button>
+                    </td>
+                </tr>`;
+        });
+        
+        html += `</tbody></table>`;
+        els.dashContent.innerHTML = html;
+    }
+
+    function submitNewBusiness(e) {
+        e.preventDefault();
+        if(!currentUser) return alert("Please sign in first");
+
+        const newBiz = {
+            name: document.getElementById('inpName').value,
+            cat: document.getElementById('inpCat').value,
+            address: document.getElementById('inpAddress').value,
+            phone: document.getElementById('inpPhone').value,
+            img: document.getElementById('inpImg').value,
+            rating: 5.0,
+            reviews: 0,
+            ownerId: currentUser.uid, // Vital for permissions
+            createdAt: firebase.database.ServerValue.TIMESTAMP
+        };
+
+        db.ref('businesses').push(newBiz)
+          .then(() => {
+              closeAll();
+              document.getElementById('addBusinessForm').reset();
+              alert('Business Listed Successfully!');
+          })
+          .catch(err => alert(err.message));
+    }
+
+    function deleteBusiness(id) {
+        if(confirm("Are you sure you want to delete this listing?")) {
+            db.ref('businesses/' + id).remove();
+        }
+    }
+
+    // ─── 6. View & UI Functions ───
+    function switchView(viewName, navEl) {
+        if(viewName === 'dashboard' && !currentUser) {
+            alert("Please sign in to manage businesses.");
+            handleAuth();
+            return;
+        }
+
+        // Handle Nav State
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if(navEl) navEl.classList.add('active');
+
+        // Handle View Visibility
+        document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active-view'));
+        document.getElementById(`view-${viewName}`).classList.add('active-view');
+
+        // Close mobile sidebar
+        els.sidebar.classList.remove('open');
+        els.overlay.classList.remove('active');
+        
+        if(viewName === 'dashboard') renderDashboard();
+    }
+
+    function openDetailModal(biz) {
+        document.getElementById('modalTitle').innerText = biz.name;
+        document.getElementById('modalCat').innerText = biz.cat;
+        document.getElementById('modalRating').innerText = biz.rating;
+        document.getElementById('modalReviews').innerText = `(${biz.reviews} reviews)`;
+        document.getElementById('modalAddress').innerText = biz.address;
+        document.getElementById('modalPhone').innerText = biz.phone;
+        document.getElementById('modalImg').style.backgroundImage = `url('${biz.img}')`;
+        els.modalDetail.classList.add('active');
+        els.overlay.classList.add('active');
+    }
+
+    function openAddModal() {
+        els.modalAdd.classList.add('active');
+        els.overlay.classList.add('active');
+    }
+
+    function closeAll() {
+        els.sidebar.classList.remove('open');
+        els.modalDetail.classList.remove('active');
+        els.modalAdd.classList.remove('active');
+        els.overlay.classList.remove('active');
+    }
+
+    function filterCategory(cat, btn) {
+        currentCategory = cat;
+        document.querySelectorAll('.category-pill').forEach(el => el.classList.remove('active'));
+        btn.classList.add('active');
+        filterBusinesses();
+        // Force switch to directory view
+        switchView('directory', document.querySelector('.nav-list .nav-item:first-child'));
+    }
+
+    els.search.addEventListener('input', () => {
+        filterBusinesses();
+        switchView('directory', document.querySelector('.nav-list .nav-item:first-child'));
     });
 
-    document.getElementById('googleSignInBtn').onclick = () => signInWithPopup(auth, googleProvider);
-    document.getElementById('unlockBtn').onclick = () => {
-      if (document.getElementById('mngPasswordInput').value === MNG_PASSWORD) {
-        document.getElementById('authHub').classList.add('hidden');
-        document.getElementById('mainDashboard').classList.remove('hidden');
-        startListening();
-      } else { alert("ACCESS DENIED: INCORRECT KEY"); }
-    };
-    document.getElementById('logoutBtn').onclick = () => signOut(auth);
+    function toggleSidebar() {
+        els.sidebar.classList.add('open');
+        els.overlay.classList.add('active');
+    }
 
-    document.getElementById('toggleAddBtn').onclick = () => {
-        document.getElementById('addStudentSection').classList.toggle('hidden');
-        calculateNextId();
-    };
-
-    function calculateNextId() {
-        if (allStudents.length === 0) {
-            nextId = "STU001";
-        } else {
-            const numericIds = allStudents.map(s => {
-                const match = s.key.match(/\d+/);
-                return match ? parseInt(match[0]) : 0;
+    // ─── 7. Auth Logic ───
+    function handleAuth() {
+        if(auth.currentUser) {
+            auth.signOut().then(() => {
+                location.reload();
             });
-            const maxId = Math.max(...numericIds);
-            nextId = `STU${String(maxId + 1).padStart(3, '0')}`;
+        } else {
+            auth.signInWithPopup(provider).catch(e => alert(e.message));
         }
-        document.getElementById('nextIdPreview').textContent = nextId;
     }
 
-    document.getElementById('studentForm').onsubmit = async (e) => {
-        e.preventDefault();
-        const studentData = {
-            name: document.getElementById('regName').value,
-            surname: document.getElementById('regSurname').value,
-            idNumber: document.getElementById('regIdNum').value,
-            cellNumber: document.getElementById('regCell').value,
-            createdAt: new Date().toISOString()
-        };
-        try {
-            await set(ref(db, `students/${nextId}`), studentData);
-            document.getElementById('studentForm').reset();
-            document.getElementById('addStudentSection').classList.add('hidden');
-            alert(`SUCCESS: Student ${nextId} added.`);
-        } catch (err) { alert(err.message); }
-    };
-
-    function startListening() {
-      onValue(ref(db, 'students'), (snap) => {
-        const data = snap.val() || {};
-        allStudents = Object.entries(data).map(([key, v]) => ({ key, ...v }))
-                        .sort((a,b) => b.key.localeCompare(a.key));
-        render(allStudents);
-      });
-    }
-
-    function render(list) {
-      const tbody = document.getElementById('studentsTableBody');
-      const noData = document.getElementById('noData');
-      tbody.innerHTML = '';
-      document.getElementById('totalStudents').textContent = list.length;
-      
-      if (list.length === 0) noData.classList.remove('hidden');
-      else noData.classList.add('hidden');
-
-      list.forEach(s => {
-        const tr = document.createElement('tr');
-        tr.className = "hover:bg-slate-50 transition-colors";
-        tr.innerHTML = `
-          <td class="px-8 py-6 font-orbitron font-bold text-neon-cyan">${s.key}</td>
-          <td class="px-8 py-6">
-            <div class="text-slate-900 font-semibold">${s.name} ${s.surname}</div>
-            <div class="text-[10px] text-slate-400 uppercase tracking-widest">${s.cellNumber || 'No Cell'}</div>
-          </td>
-          <td class="px-8 py-6 text-slate-600 font-medium">${s.idNumber}</td>
-          <td class="px-8 py-6 text-center">
-            <button onclick="deleteStudent('${s.key}')" class="px-4 py-2 rounded-lg bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition-all text-xs font-bold">Delete</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-    }
-
-    window.deleteStudent = async (id) => {
-        if(confirm(`Permanently delete student ${id}?`)) {
-            await remove(ref(db, `students/${id}`));
+    auth.onAuthStateChanged(user => {
+        currentUser = user;
+        if (user) {
+            els.greeting.innerText = `Hello, ${user.displayName.split(' ')[0]}`;
+            els.avatar.style.backgroundImage = `url(${user.photoURL})`;
+            document.getElementById('authBtnSidebar').querySelector('.nav-label').innerText = "Sign Out";
+            document.getElementById('authBtnSidebar').querySelector('.nav-icon').innerText = "logout";
+            renderDashboard();
+        } else {
+            els.greeting.innerText = "Hello, Guest";
+            els.avatar.style.backgroundImage = `url('https://ui-avatars.com/api/?name=Guest&background=random')`;
+            document.getElementById('authBtnSidebar').querySelector('.nav-label').innerText = "Sign In";
+            document.getElementById('authBtnSidebar').querySelector('.nav-icon').innerText = "login";
+            // If on dashboard, kick back to directory
+            switchView('directory', document.querySelector('.nav-list .nav-item:first-child'));
         }
-    };
+    });
 
-    document.getElementById('searchInput').oninput = (e) => {
-      const term = e.target.value.toLowerCase();
-      render(allStudents.filter(s => Object.values(s).some(v => String(v).toLowerCase().includes(term))));
-    };
+    initDatabaseListener();
+
   </script>
 </body>
 </html>
