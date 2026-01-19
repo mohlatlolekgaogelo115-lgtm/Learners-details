@@ -33,117 +33,188 @@
       background-color: #F0F4F9;
       background-image: linear-gradient(rgba(240, 244, 249, 0.85), rgba(240, 244, 249, 0.75)), 
                         url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
-      background-size: cover; background-position: center; background-attachment: fixed;
-      color: var(--text-main); font-family: 'Outfit', sans-serif; height: 100vh; display: flex; overflow: hidden;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      height: 100vh;
+      display: flex;
+      overflow: hidden;
     }
 
-    /* Sidebar */
+    /* Sidebar Glassmorphism */
     .sidebar {
-      background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(12px); border-right: 1px solid rgba(255,255,255,0.3);
-      width: var(--sidebar-collapsed); display: flex; flex-direction: column; padding: 12px; z-index: 50;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-right: 1px solid rgba(255,255,255,0.3);
+      width: var(--sidebar-collapsed);
+      display: flex;
+      flex-direction: column;
+      padding: 12px;
+      z-index: 50;
       transition: width 0.3s cubic-bezier(0.2, 0, 0, 1);
     }
-    .sidebar:hover { width: var(--sidebar-width); }
-    .sidebar:not(:hover) .nav-label, .sidebar:not(:hover) .brand-text { opacity: 0; display: none; }
+    @media(min-width: 769px) {
+      .sidebar:hover { width: var(--sidebar-width); background: rgba(255, 255, 255, 0.9); }
+      .sidebar:not(:hover) .nav-label, .sidebar:not(:hover) .brand-text { opacity: 0; display: none; }
+    }
+    @media(max-width: 768px) {
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; width: 280px; background: #fff; transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+    }
 
     .nav-list { flex: 1; display: flex; flex-direction: column; gap: 4px; margin-top: 20px; }
     .nav-item {
       display: flex; align-items: center; gap: 16px; padding: 12px 16px; border-radius: 24px;
-      color: var(--text-secondary); cursor: pointer; transition: 0.2s;
+      color: var(--text-secondary); cursor: pointer; text-decoration: none; white-space: nowrap;
+      transition: background 0.2s;
     }
+    .nav-item:hover { background: rgba(66, 133, 244, 0.1); color: var(--text-main); }
     .nav-item.active { background: rgba(66, 133, 244, 0.15); color: #041E49; font-weight: 600; }
 
-    /* Main Container */
+    /* Main Panel Glassmorphism */
     .main {
-      flex: 1; display: flex; flex-direction: column; background: rgba(255, 255, 255, 0.8); 
-      backdrop-filter: blur(10px); border-radius: 24px; margin: 16px; overflow: hidden;
+      flex: 1; display: flex; flex-direction: column; position: relative;
+      background: rgba(255, 255, 255, 0.8); 
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border-radius: 24px; margin: 16px 16px 16px 0;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.05); 
       border: 1px solid rgba(255, 255, 255, 0.4);
+      overflow: hidden;
+    }
+    @media(max-width: 768px) { .main { margin: 0; border-radius: 0; } }
+
+    .top-bar {
+      height: var(--header-height); display: flex; align-items: center; justify-content: space-between;
+      padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); z-index: 10; 
+      background: rgba(255,255,255,0.4); backdrop-filter: blur(5px);
     }
 
-    .top-bar { height: var(--header-height); display: flex; align-items: center; justify-content: space-between; padding: 0 24px; border-bottom: 1px solid rgba(0,0,0,0.05); }
-    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; }
-
-    /* Security Gate UI */
-    #security-gate {
-      max-width: 350px; margin: 100px auto; padding: 30px; text-align: center;
-      background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    .user-pill {
+      display: flex; align-items: center; gap: 8px; padding: 6px 6px 6px 12px;
+      background: rgba(255,255,255,0.6); border: 1px solid rgba(255,255,255,0.8);
+      border-radius: 32px; cursor: pointer;
     }
+    .user-avatar { width: 32px; height: 32px; border-radius: 50%; background-size: cover; background-position: center; }
 
-    .content-scroll { flex: 1; overflow-y: auto; }
-    .view-section { display: none; padding: 24px; animation: fadeIn 0.4s ease; }
+    .content-scroll { flex: 1; overflow-y: auto; scroll-behavior: smooth; }
+
+    /* Views */
+    .view-section { display: none; animation: fadeIn 0.4s ease; }
     .view-section.active-view { display: block; }
-
-    /* Table & Buttons */
-    .dash-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.5); border-radius: 12px; }
-    .dash-table td { padding: 15px; border-bottom: 1px solid #eee; }
-    .btn-delete { color: var(--danger-color); border: none; background: none; cursor: pointer; font-weight: 600; display: flex; align-items: center; gap: 5px; }
-    .form-input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
-    .btn-block { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; cursor: pointer; font-weight: 600; }
-
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 90; display: none; backdrop-filter: blur(4px); }
-    .modal-sheet { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 90%; max-width: 450px; border-radius: 24px; z-index: 100; display: none; padding: 24px; }
-    
     @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* Directory Components */
+    .hero-section { padding: 60px 24px 40px; text-align: center; }
+    .hero-title { font-size: 2.5rem; font-weight: 700; background: var(--primary-gradient); -webkit-background-clip: text; color: transparent; }
+    .search-input {
+      width: 100%; max-width: 600px; padding: 16px 24px 16px 50px; border-radius: 30px; 
+      border: 1px solid rgba(0,0,0,0.1); background: rgba(255,255,255,0.9); outline: none;
+    }
+    .business-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px; padding: 24px; }
+    
+    .business-card {
+      background: rgba(255,255,255,0.9); border: 1px solid white; border-radius: 16px;
+      overflow: hidden; transition: 0.2s; cursor: pointer;
+    }
+    .business-card:hover { transform: translateY(-4px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
+    .card-img { height: 140px; background-size: cover; background-position: center; position: relative; }
+    .card-body { padding: 16px; }
+
+    /* Dashboard Table */
+    .dash-header { padding: 40px 24px 20px; display: flex; justify-content: space-between; align-items: center; }
+    .dash-table-wrapper { padding: 0 24px; overflow-x: auto; }
+    .dash-table { width: 100%; border-collapse: collapse; background: rgba(255,255,255,0.5); border-radius: 12px; overflow: hidden; }
+    .dash-table th { text-align: left; padding: 15px; color: var(--text-muted); font-size: 0.85rem; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .dash-table td { padding: 15px; border-bottom: 1px solid rgba(0,0,0,0.03); }
+    .dash-thumb { width: 45px; height: 45px; border-radius: 8px; background-size: cover; }
+    
+    .status-badge { background: #E6F4EA; color: #137333; padding: 4px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: 600; }
+    .fab-add { background: var(--accent-color); color: white; border: none; padding: 12px 24px; border-radius: 30px; cursor: pointer; display: flex; align-items: center; gap: 8px; font-weight: 600; }
+
+    /* Modals */
+    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 90; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
+    .overlay.active { opacity: 1; pointer-events: auto; }
+    .modal-sheet { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; width: 90%; max-width: 500px; border-radius: 24px; z-index: 100; opacity: 0; pointer-events: none; transition: 0.3s; padding: 24px; }
+    .modal-sheet.active { opacity: 1; pointer-events: auto; }
+    
+    .form-group { margin-bottom: 15px; }
+    .form-input { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; outline: none; }
+    .btn-block { width: 100%; padding: 14px; background: var(--text-main); color: white; border: none; border-radius: 12px; font-weight: 600; cursor: pointer; }
+    
+    .btn-delete { 
+      background: rgba(219, 68, 55, 0.1); 
+      border: none; 
+      color: var(--danger-color); 
+      padding: 8px 12px; 
+      border-radius: 8px; 
+      cursor: pointer; 
+      display: flex; 
+      align-items: center; 
+      gap: 5px;
+      font-weight: 500;
+      transition: 0.2s;
+    }
+    .btn-delete:hover { background: var(--danger-color); color: white; }
   </style>
 </head>
 <body>
 
   <div class="overlay" id="overlay" onclick="closeAll()"></div>
 
-  <aside class="sidebar">
-    <div style="padding: 10px; display: flex; align-items: center; gap: 10px;">
-      <span class="material-symbols-rounded" style="color:#4285F4">shield</span>
-      <span class="brand-text" style="font-weight: 700;">Vynix Biz</span>
+  <aside class="sidebar" id="sidebar">
+    <div style="padding: 10px;">
+      <h2 style="display:flex; align-items:center; gap:10px;"><span class="material-symbols-rounded" style="color:#4285F4">business_center</span><span class="brand-text">Vynix Biz</span></h2>
     </div>
     <div class="nav-list">
       <div class="nav-item active" onclick="switchView('directory', this)"><span class="material-symbols-rounded">storefront</span><span class="nav-label">Directory</span></div>
       <div class="nav-item" onclick="switchView('dashboard', this)"><span class="material-symbols-rounded">dashboard</span><span class="nav-label">Dashboard</span></div>
     </div>
-    <div class="nav-item" onclick="handleAuth()"><span class="material-symbols-rounded">logout</span><span class="nav-label" id="authLabel">Sign In</span></div>
+    <div class="nav-item" onclick="handleAuth()"><span class="material-symbols-rounded">login</span><span class="nav-label" id="authLabel">Sign In</span></div>
   </aside>
 
   <main class="main">
     <div class="top-bar">
       <span id="greeting" style="font-weight:600">Hello, Guest</span>
-      <div id="userAvatar" class="user-avatar" style="background-image:url('https://ui-avatars.com/api/?name=Guest')"></div>
+      <div class="user-pill" onclick="handleAuth()"><div class="user-avatar" id="userAvatar" style="background-image:url('https://ui-avatars.com/api/?name=Guest')"></div></div>
     </div>
 
     <div class="content-scroll">
       <div id="view-directory" class="view-section active-view">
-        <h1 style="text-align: center; margin-bottom: 30px;">Public Directory</h1>
-        <div id="businessGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px;"></div>
+        <div class="hero-section">
+          <h1 class="hero-title">Business Directory</h1>
+          <div style="position:relative; margin-top:20px;">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search businesses...">
+          </div>
+        </div>
+        <div class="business-grid" id="businessGrid"></div>
       </div>
 
       <div id="view-dashboard" class="view-section">
-        
-        <div id="security-gate">
-            <span class="material-symbols-rounded" style="font-size: 48px; color: var(--accent-color)">lock</span>
-            <h2 id="gate-title" style="margin-top:10px">Dashboard Locked</h2>
-            <p id="gate-desc" style="margin: 10px 0 20px; font-size: 0.9rem; color: #666;">Verification required.</p>
-            <input type="password" id="gate-pass" class="form-input" placeholder="Enter dashboard password">
-            <button class="btn-block" onclick="verifyGate()">Unlock Access</button>
+        <div class="dash-header">
+          <h2>Database Management</h2>
+          <button class="fab-add" onclick="openAddModal()"><span class="material-symbols-rounded">add</span> Add Listing</button>
         </div>
-
-        <div id="dashboard-actual" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2>Database Management</h2>
-                <button class="btn-block" style="width: auto; padding: 10px 20px;" onclick="openAddModal()">+ Add New</button>
-            </div>
-            <div id="dashboardContent"></div>
-        </div>
-
+        <div class="dash-table-wrapper" id="dashboardContent"></div>
       </div>
     </div>
   </main>
 
   <div class="modal-sheet" id="addModal">
-    <h3>Add Business Listing</h3><br>
+    <h3 style="margin-bottom:20px">List New Business</h3>
     <form onsubmit="submitNewBusiness(event)">
-      <input type="text" id="inpName" class="form-input" placeholder="Business Name" required>
-      <input type="text" id="inpCat" class="form-input" placeholder="Category">
-      <input type="text" id="inpAddress" class="form-input" placeholder="Address">
-      <input type="url" id="inpImg" class="form-input" placeholder="Image URL">
-      <button type="submit" class="btn-block">Publish Listing</button>
+      <div class="form-group"><input type="text" id="inpName" class="form-input" placeholder="Business Name" required></div>
+      <div class="form-group">
+        <select id="inpCat" class="form-input">
+          <option>Restaurant</option><option>Retail</option><option>Service</option><option>Tech</option>
+        </select>
+      </div>
+      <div class="form-group"><input type="text" id="inpAddress" class="form-input" placeholder="Address" required></div>
+      <div class="form-group"><input type="url" id="inpImg" class="form-input" placeholder="Image URL"></div>
+      <button type="submit" class="btn-block">Publish</button>
     </form>
   </div>
 
@@ -162,61 +233,76 @@
     const db = firebase.database();
     const provider = new firebase.auth.GoogleAuthProvider();
 
+    let allBusinesses = [];
     let currentUser = null;
-    let storedPassword = null;
-    let isUnlocked = false;
 
-    // Real-time Database Listener
     db.ref('businesses').on('value', snap => {
       const data = snap.val();
-      const list = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
-      renderDirectory(list);
-      renderDashboard(list);
+      allBusinesses = data ? Object.keys(data).map(k => ({id:k, ...data[k]})) : [];
+      renderDirectory();
+      renderDashboard();
     });
 
-    function renderDirectory(list) {
-      document.getElementById('businessGrid').innerHTML = list.map(b => `
-        <div style="background:white; border-radius:16px; overflow:hidden; border:1px solid #eee;">
-          <div style="height:150px; background:url('${b.img}') center/cover"></div>
-          <div style="padding:15px"><strong>${b.name}</strong><br><small>${b.cat}</small></div>
+    function renderDirectory() {
+      const q = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allBusinesses.filter(b => b.name.toLowerCase().includes(q));
+      const grid = document.getElementById('businessGrid');
+      grid.innerHTML = filtered.map(b => `
+        <div class="business-card">
+          <div class="card-img" style="background-image:url('${b.img || 'https://via.placeholder.com/300'}')"></div>
+          <div class="card-body">
+            <div style="font-weight:700">${b.name}</div>
+            <div style="font-size:0.8rem; color:#666">${b.address}</div>
+          </div>
         </div>
       `).join('');
     }
 
-    function renderDashboard(list) {
-      let html = `<table class="dash-table">`;
-      list.forEach(b => {
-        html += `<tr>
-          <td><strong>${b.name}</strong></td>
-          <td style="text-align:right">
-            <button class="btn-delete" onclick="deleteBiz('${b.id}')">
-              <span class="material-symbols-rounded">delete</span> Delete
-            </button>
-          </td>
-        </tr>`;
+    // UPDATED: Show Delete button for ALL items on dashboard
+    function renderDashboard() {
+      const container = document.getElementById('dashboardContent');
+      if (!currentUser) {
+        container.innerHTML = '<p style="padding:40px; text-align:center">Please Sign In to manage the database.</p>';
+        return;
+      }
+
+      let html = `<table class="dash-table"><thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Actions</th></tr></thead><tbody>`;
+      
+      allBusinesses.forEach(b => {
+        html += `
+          <tr>
+            <td><div class="dash-thumb" style="background-image:url('${b.img}')"></div></td>
+            <td><strong>${b.name}</strong><br><span style="font-size:0.7rem; color:#666">${b.address}</span></td>
+            <td>${b.cat}</td>
+            <td>
+              <button class="btn-delete" onclick="deleteBiz('${b.id}')">
+                <span class="material-symbols-rounded" style="font-size:18px">delete</span>
+                Delete
+              </button>
+            </td>
+          </tr>`;
       });
-      document.getElementById('dashboardContent').innerHTML = html + `</table>`;
+      html += `</tbody></table>`;
+      container.innerHTML = html;
     }
 
-    // Security Gate Logic
-    async function verifyGate() {
-        const input = document.getElementById('gate-pass').value;
-        if(!input) return;
+    function submitNewBusiness(e) {
+      e.preventDefault();
+      if(!currentUser) return alert("Sign in first");
+      const newBiz = {
+        name: document.getElementById('inpName').value,
+        cat: document.getElementById('inpCat').value,
+        address: document.getElementById('inpAddress').value,
+        img: document.getElementById('inpImg').value || 'https://images.unsplash.com/photo-1497366216548-37526070297c',
+        ownerId: currentUser.uid
+      };
+      db.ref('businesses').push(newBiz).then(() => closeAll());
+    }
 
-        if(!storedPassword) {
-            // Registering password for the first time
-            await db.ref('user_configs/' + currentUser.uid).set({ password: input });
-            alert("Password Registered! Please login again to confirm.");
-            location.reload();
-        } else {
-            if(input === storedPassword) {
-                isUnlocked = true;
-                document.getElementById('security-gate').style.display = 'none';
-                document.getElementById('dashboard-actual').style.display = 'block';
-            } else {
-                alert("Wrong password!");
-            }
-        }
+    function deleteBiz(id) {
+      if(confirm("Are you sure you want to permanently remove this business from the directory?")) {
+        db.ref('businesses').child(id).remove();
+      }
     }
 
     function switchView(view, el) {
@@ -224,68 +310,31 @@
       el.classList.add('active');
       document.querySelectorAll('.view-section').forEach(v => v.classList.remove('active-view'));
       document.getElementById('view-' + view).classList.add('active-view');
-      
-      // Auto-lock when leaving dashboard
-      if(view !== 'dashboard') {
-          isUnlocked = false;
-          document.getElementById('security-gate').style.display = 'block';
-          document.getElementById('dashboard-actual').style.display = 'none';
-          document.getElementById('gate-pass').value = '';
-      }
     }
 
     function handleAuth() {
       auth.currentUser ? auth.signOut() : auth.signInWithPopup(provider);
     }
 
-    auth.onAuthStateChanged(async user => {
+    auth.onAuthStateChanged(user => {
       currentUser = user;
-      if(user) {
-        document.getElementById('greeting').innerText = "Hello, " + user.displayName.split(' ')[0];
-        document.getElementById('userAvatar').style.backgroundImage = `url(${user.photoURL})`;
-        document.getElementById('authLabel').innerText = "Sign Out";
-
-        // Check if this user has a password in DB
-        const snap = await db.ref('user_configs/' + user.uid).once('value');
-        const data = snap.val();
-        if(data && data.password) {
-            storedPassword = data.password;
-            document.getElementById('gate-title').innerText = "Dashboard Locked";
-            document.getElementById('gate-desc').innerText = "Enter your custom access password.";
-        } else {
-            storedPassword = null;
-            document.getElementById('gate-title').innerText = "Set Password";
-            document.getElementById('gate-desc').innerText = "First time? Create a password for this account.";
-        }
-      } else {
-          location.reload();
-      }
+      document.getElementById('greeting').innerText = user ? `Hello, ${user.displayName.split(' ')[0]}` : "Hello, Guest";
+      document.getElementById('userAvatar').style.backgroundImage = user ? `url(${user.photoURL})` : "url('https://ui-avatars.com/api/?name=Guest')";
+      document.getElementById('authLabel').innerText = user ? "Sign Out" : "Sign In";
+      renderDashboard();
     });
 
-    function submitNewBusiness(e) {
-      e.preventDefault();
-      const b = {
-        name: document.getElementById('inpName').value,
-        cat: document.getElementById('inpCat').value,
-        address: document.getElementById('inpAddress').value,
-        img: document.getElementById('inpImg').value || 'https://via.placeholder.com/300'
-      };
-      db.ref('businesses').push(b).then(() => closeAll());
-    }
-
-    function deleteBiz(id) {
-        if(confirm("Confirm Delete?")) db.ref('businesses').child(id).remove();
-    }
-
     function openAddModal() {
-        document.getElementById('addModal').style.display = 'block';
-        document.getElementById('overlay').style.display = 'block';
+      document.getElementById('addModal').classList.add('active');
+      document.getElementById('overlay').classList.add('active');
     }
 
     function closeAll() {
-        document.getElementById('addModal').style.display = 'none';
-        document.getElementById('overlay').style.display = 'none';
+      document.getElementById('addModal').classList.remove('active');
+      document.getElementById('overlay').classList.remove('active');
     }
+
+    document.getElementById('searchInput').oninput = renderDirectory;
   </script>
 </body>
 </html>
